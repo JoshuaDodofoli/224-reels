@@ -16,10 +16,21 @@
 @theme inline {
   --color-background: var(--grey-200);
   --color-accent: var(--accent);
+  --color-grey-200: var(--grey-200);
+  --color-grey-300: var(--grey-300);
+  --color-grey-400: var(--grey-400);
+  --color-grey-500: var(--grey-500);
+  --color-grey-700: var(--grey-700);
   /* --color-foreground: var(--foreground); */
   /* --font-sans: var(--font-geist-sans); */
   --font-mono: var(--font-geist-mono);
   --font-sans: var(--clash-grotesk);
+
+  --text-h1: 4.250rem;
+  --text-h2: 2.625rem;
+  --text-h3: 1.625rem;
+  --text-body: 1rem;
+  --text-caption: 0.625rem;
 }
 
 body {

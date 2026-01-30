@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import localFont from 'next/font/local';
+import Nav from "./components/navbar/Nav";
 
 const clashGrotesk = localFont({
   src: '../app/fonts/ClashGrotesk-Variable.woff2',
@@ -33,6 +34,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${clashGrotesk.variable} antialiased`}
       >
+        <Nav />
         {children}
       </body>
     </html>
