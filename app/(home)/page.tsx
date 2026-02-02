@@ -11,7 +11,7 @@ export default function Home() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentReel((prev: number) => (prev + 1) % reelsData.length)
-    }, 3000);
+    }, 5000);
     return () => clearInterval(interval);
   }, [currentReel])
 
@@ -26,7 +26,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.7, ease: 'easeInOut' }}
             src={reelsData[currentReel].img} alt={"Hero img"} fill className="object-center object-cover" />
           <div className="flex items-center justify-center w-full h-full">
             <div className="relative w-full">
@@ -36,7 +36,7 @@ export default function Home() {
                 initial={{ y: 10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: -10, opacity: 0 }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.7, ease: 'easeInOut' }}
               >
                 {reelsData[currentReel].title}
               </motion.p>

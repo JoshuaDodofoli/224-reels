@@ -21,7 +21,7 @@ const Nav = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1, transition: { duration: 0.2 } }}
             exit={{ opacity: 0, transition: { duration: 0.2 } }}
-            className="absolute bg-black/10 inset-0 z-40" />
+            className="absolute bg-black/40 inset-0 z-40" />
         }
       </AnimatePresence>
 
