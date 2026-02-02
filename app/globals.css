@@ -33,8 +33,12 @@
   --text-caption: 0.625rem;
 }
 
-body {
+body {  
   background: var(--color-background);
   color: var(--black);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.hero-title {
+  font-size: clamp(2.5rem, 8vw, 96px);
 }
