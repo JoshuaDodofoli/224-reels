@@ -7,70 +7,66 @@ import Link from "next/link";
 
 const Nav = () => {
 
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-
-  const handleToggle = () => {
-    setIsOpen(prev => !prev)
-  }
+  const [isHovered, setIsHovered] = useState(false);
+  const [hoveredMenu, setHoveredMenu] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <>
+    <nav className="fixed top-8 left-0 w-full z-60">
+      <Wrapper className="">
+        <div className="flex gap-1 relative z-60">
+          <div onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)} className="cursor-pointer size-10 bg-background">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: isHovered ? 0.97 : 0, transition: { duration: 0.3, ease: [0.25, 1, 0.5, 1] } }}
+              className="w-full h-full bg-black" />
+          </div>
+          <div className="">
+            <div onClick={() => setIsOpen(!isOpen)} onMouseEnter={() => setHoveredMenu(true)} onMouseLeave={() => setHoveredMenu(false)} className="size-10 bg-black/30
+            # rounded-full overflow-hidden">
+              <motion.div
+                initial={{ scale: 1 }}
+                animate={{ scale: hoveredMenu ? 0.96 : 1, transition: { duration: 0.3, ease: [0.25, 1, 0.5, 1] } }}
+                className="w-full h-full bg-background rounded-full flex flex-col items-center justify-center gap-1 p-2 cursor-pointer">
+                <span className="w-6 h-[0.5px] bg-black/50"></span>
+                <span className="w-6 h-[0.5px] bg-black/50"></span>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </Wrapper>
+
       <AnimatePresence>
         {
-          isOpen && <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1, transition: { duration: 0.2 } }}
-            exit={{ opacity: 0, transition: { duration: 0.2 } }}
-            className="absolute bg-black/40 inset-0 z-40" />
+          isOpen && <NavMenu />
         }
       </AnimatePresence>
 
-      <div className="fixed left-0 top-0 z-60 w-full">
-        <Wrapper>
-          <motion.nav
-            initial={{ height: '3.5rem', maxWidth: '360px' }}
-            animate={{ height: isOpen ? 'auto' : '3.5rem', maxWidth: isOpen ? '450px' : '360px' }}
-            className="relative mx-auto border-[0.5px] border-grey-300 rounded-xl mt-8 bg-transparent">
-            <div className="w-full flex flex-col items-center py-2">
-              <div className="flex items-center justify-between w-full h-full px-4">
-                <div className="bg-background w-10 h-10 rounded-lg" />
-                <div className="">
-                  <span className="font-sans text-xl font-semibold text-background">
-                    <Link href="/">244 reels</Link>
-                  </span>
-                </div>
-                <div onClick={() => handleToggle()} className="flex cursor-pointer flex-col size-10 items-center justify-center gap-2">
-                  <span className="h-px w-7 bg-background"></span>
-                  <span className="h-px w-7 bg-background"></span>
-                </div>
-              </div>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: isOpen ? 'auto' : 0, opacity: isOpen ? 1 : 0, transition: { duration: 0.3 } }}
-                  exit={{ height: 0, opacity: 0, transition: { duration: 0 } }}
-                  className="w-full h-auto">
-                  <div className="">
-                    <ul className="p-4">
-                      {navLinks.map((link, index) => {
-                        return (
-                          <li key={index} onClick={handleToggle} className="py-1">
-                            <Link href={link.path}>{link.title}</Link>
-                          </li>
-                        )
-                      })}
-                    </ul>
-                    <div className="">
-                      <div className="bg-red-200 w-full h-full" />
-                    </div>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          </motion.nav>
-        </Wrapper>
-      </div>
-    </>
+
+    </nav>
+  )
+}
+
+const NavMenu = () => {
+  return (
+    <motion.div
+      initial={{ x: '-100%' }}
+      animate={{ x: '0%', transition: { duration: 0.6, ease: [0.65, 0, 0.35, 1] } }}
+      exit={{ x: '-100%', transition: { duration: 0.4, ease: [0.25, 1, 0.5, 1] } }}
+      className="h-dvh max-w-3/4 md:max-w-1/3 w-full flex flex-col items-center justify-center bg-black/70 backdrop-blur-md fixed top-0 left-0 z-30">
+      <ul className="text-background">
+      {
+        navLinks.map((link, index) => {
+          return (
+            <motion.li
+            initial={{ x: "-100%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1, transition: { duration: 0.3, delay: index * 0.1 } }}
+            key={index} className="hero-title "><Link href={link.path}>{link.title}</Link></motion.li>
+          )
+        })
+      }
+      </ul>
+    </motion.div>
   )
 }
 

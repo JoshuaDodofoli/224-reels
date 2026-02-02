@@ -11,11 +11,11 @@ export default function Home() {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentReel((prev: number) => (prev + 1) % reelsData.length)
-    }, 5000);
+    }, 4000);
     return () => clearInterval(interval);
   }, [currentReel])
 
-  const MotionImg = motion(Image);
+  const MotionImg = motion.create(Image);
 
   return (
     <section className="w-full h-screen absolute inset-0  bg-black">
@@ -32,7 +32,7 @@ export default function Home() {
             <div className="relative w-full">
               <motion.p
                 key={reelsData[currentReel].title}
-                className="fixed h-screen inset-0 w-full flex items-center justify-center font-semibold hero-title uppercase text-background"
+                className="fixed h-screen inset-0 w-full px-4 text-center leading-tight flex items-center justify-center font-semibold hero-title uppercase text-background"
                 initial={{ y: 10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: -10, opacity: 0 }}
