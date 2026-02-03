@@ -36,9 +36,9 @@ const Nav = () => {
         </div>
       </Wrapper>
 
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {
-          isOpen && <NavMenu />
+          isOpen && <NavMenu setIsOpen={setIsOpen} />
         }
       </AnimatePresence>
 
@@ -47,7 +47,7 @@ const Nav = () => {
   )
 }
 
-const NavMenu = () => {
+const NavMenu = ({ setIsOpen } : { setIsOpen: (isOpen: boolean) => void }) => {
   return (
     <motion.div
       initial={{ x: '-100%' }}
@@ -55,16 +55,26 @@ const NavMenu = () => {
       exit={{ x: '-100%', transition: { duration: 0.4, ease: [0.25, 1, 0.5, 1] } }}
       className="h-dvh max-w-3/4 md:max-w-1/3 w-full flex flex-col items-center justify-center bg-black/70 backdrop-blur-md fixed top-0 left-0 z-30">
       <ul className="text-background">
-      {
-        navLinks.map((link, index) => {
-          return (
+        {navLinks.map((link, index) => (
+          <div onClick={() => setIsOpen(false)} className="overflow-hidden" key={link.path}>
             <motion.li
-            initial={{ x: "-100%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1, transition: { duration: 0.3, delay: index * 0.1 } }}
-            key={index} className="hero-title "><Link href={link.path}>{link.title}</Link></motion.li>
-          )
-        })
-      }
+              initial={{ y: "100%", opacity: 0 }}
+              animate={{
+                y: "0%",
+                opacity: 1,
+                transition: {
+                  duration: 0.35,
+                  delay: (index * 0.12) + 0.3,
+                  ease: [0.25, 1, 0.5, 1],
+                },
+              }}
+              className="text-xl md:text-2xl font-medium py-4 uppercase cursor-pointer"
+            >
+              <Link href={link.path}>{link.title}</Link>
+            </motion.li>
+          </div>
+        ))}
+
       </ul>
     </motion.div>
   )

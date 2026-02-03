@@ -9,8 +9,8 @@ export const navLinks = [
         'path': '/about'
     },
     {
-        'title': 'Work',
-        'path': '/work'
+        'title': 'Works',
+        'path': '/works'
     },
 
 ]
