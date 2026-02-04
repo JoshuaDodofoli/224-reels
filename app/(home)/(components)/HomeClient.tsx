@@ -1,4 +1,4 @@
-'use client';
+'use client'
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { VideoAsset } from "@/app/utils/types";
@@ -43,34 +43,38 @@ export default function Home({ videos }: HomeClientProps) {
                         className="absolute inset-0"
                     >
                         <BackgroundVideo
-                            src={`https://stream.mux.com/${playbackId}.m3u8`}
+                            src={`https://stream.mux.com/${playbackId!}.m3u8`}
                             className="w-full h-full object-cover"
                         />
                     </motion.div>
                 </AnimatePresence>
 
-                <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                    <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
                     <AnimatePresence mode="wait">
-                        <motion.p
-                            key={activeVideo.id}
-                            className="px-4 text-center leading-tight font-semibold hero-title uppercase text-background"
-                            initial={{ y: 50, opacity: 0 }}
-                            animate={{ 
-                                y: 0, 
-                                opacity: 1,
-                                transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] }
-                            }}
-                            exit={{ 
-                                y: -50, 
-                                opacity: 0,
-                                transition: { duration: 0.4 }
-                            }}
-                        >
-                            {currentTitle}
-                        </motion.p>
+                        <div className="overflow-hidden py-2" key={`wrap-${activeVideo.id!}`}>
+                            <motion.p
+                                key={`text-${activeVideo.id}`}
+                                className="px-4 text-center leading-tight font-semibold hero-title uppercase text-white text-5xl md:text-7xl"
+                                initial={{ y: "100%", opacity: 0 }}
+                                animate={{ 
+                                    y: 0, 
+                                    opacity: 1,
+                                    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] }
+                                }}
+                                exit={{ 
+                                    y: "-100%", 
+                                    opacity: 0,
+                                    transition: { duration: 0.4 }
+                                }}
+                            >
+                                {currentTitle}
+                            </motion.p>
+                        </div>
                     </AnimatePresence>
                 </div>
             </div>
+
+            {/* </div> */}
         </section>
     );
 }
