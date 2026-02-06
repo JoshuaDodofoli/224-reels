@@ -1,34 +1,71 @@
 'use client'
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import { VideoAsset } from "@/app/utils/types";
-import BackgroundVideo from "next-video/background-video";
 import { reelsData } from "@/app/utils/data";
 import Image from "next/image";
-import FloatingButton from "./FloatingButton";
+import MobileScreen from "./MobileScreen";
+import classNames from "classnames";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
-interface HomeClientProps {
-  videos: VideoAsset[]
-}
+// interface HomeClientProps {
+//   videos: VideoAsset[]
+// }
 
-export default function Home({ videos }: HomeClientProps) {
+export default function Home() {
 
+
+  const [currentReel, setCurrentReel] = useState(0);
+  const [hoveredReel, setHoveredReel] = useState<number | null>(null);
+  const imgContainer = useRef<HTMLDivElement>(null);
+
+  const handleHover = (idx: number) => {
+    setHoveredReel(idx);
+  }
+
+  const handleMouseLeave = () => {
+    setHoveredReel(null);
+  }
+
+  const handleClick = (idx: number) => {
+    setCurrentReel(idx);
+    setHoveredReel(null);
+  }
+
+  const displayedReel = hoveredReel !== null ? hoveredReel : currentReel;
+
+  useGSAP(() => {
+    if (!imgContainer.current) return;
+
+    gsap.fromTo(imgContainer.current, {
+      opacity: 0.3,
+      scale: 1.01,
+    }, {
+      opacity: 1,
+      scale: 1,
+      duration: 0.6,
+      ease: 'power2.inOut',
+    })
+  }, [displayedReel])
 
   return (
     <section className="w-full h-dvh">
-      <div className="w-full h-full fixed inset-0">
-        {/* {reelsData.map((reel, idx) => {
+      <div className=" h-full hidden lg:block">
+
+        <div className="w-full h-full fixed inset-0">
+          {/* {reelsData.map((reel, idx) => {
           return ( */}
-        <div className="relative w-full h-full">
-          <Image
-            src={reelsData[2].img}
-            alt={reelsData[0].title}
-            fill
-            className="object-cover object-center"
-          />
-        </div>
-        {/* )
+          <div ref={imgContainer} className="relative w-full h-full">
+            <Image
+              src={reelsData[displayedReel].img}
+              alt={reelsData[displayedReel].title}
+              fill
+              className="object-cover object-center"
+            />
+          </div>
+          {/* )
         })} */}
-        {/* {reelsData.map((reel, idx) => {
+          {/* {reelsData.map((reel, idx) => {
           return (
             <div key={idx} className="relative w-full h-full">
               <Image
@@ -38,31 +75,42 @@ export default function Home({ videos }: HomeClientProps) {
                 className="object-cover object-center"
               />
             </div>
-          )
+            )
         })} */}
-      </div>
+        </div>
 
-      <div className="w-full h-full relative flex items-end justify-center pb-6 ">
-        <div className="hidden lg:block">
-          <ul className="text-background flex max-w-lg flex-wrap items-center justify-center w-full gap-0 md:gap-1">
-            {reelsData.map((reel, idx) => {
-              return (
-                <div key={idx}>
-                  <li className="flex gap-1 text-body md:text-xl hover:text-grey-300 duration-300 font-sans font-medium tracking-wide">
-                    {reel.title}
-                    <span className="mr-px font-medium">
-                      {idx < reelsData.length - 1 && '/'}
+        <div className="w-full h-full relative flex items-end justify-center pb-6">
+          <div className="hidden lg:block">
+            <ul className="text-background flex max-w-lg flex-wrap items-center justify-center w-full gap-0 md:gap-1">
+              {reelsData.map((reel, idx) => {
+                return (
+                  <li key={idx} className="flex gap-1 items-center">
+                    <span
+                      onMouseEnter={() => handleHover(idx)}
+                      onMouseLeave={handleMouseLeave}
+                      onClick={() => handleClick(idx)}
+                      className={classNames(
+                        'cursor-pointer text-body md:text-xl hover:text-grey-400 duration-300 font-sans font-medium tracking-wide',
+                        currentReel === idx && 'text-grey-400'
+                      )}
+                    >
+                      {reel.title}
                     </span>
+                    {idx < reelsData.length - 1 && (
+                      <span className="font-medium text-body md:text-xl">
+                        /
+                      </span>
+                    )}
                   </li>
-                  <span className="w-full bg-background h-0.5"></span>
-                </div>
-              )
-            })}
-          </ul>
+                )
+              })}
+            </ul>
+          </div>
         </div>
-        <div className="block lg:hidden">
-          <FloatingButton />
-        </div>
+
+      </div>
+      <div className="block lg:hidden h-full">
+        <MobileScreen />
       </div>
     </section>
   );

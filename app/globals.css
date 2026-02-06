@@ -46,3 +46,11 @@ body {
 .mask-container {
   overflow: hidden;
 }
+
+.radius {
+  @apply rounded-sm
+}
+
+.button-style {
+  @apply bg-grey-500/10 backdrop-blur-sm
+}
