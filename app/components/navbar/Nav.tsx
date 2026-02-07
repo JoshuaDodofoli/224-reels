@@ -1,7 +1,8 @@
 'use client'
+import { useGSAP } from "@gsap/react";
 import Wrapper from "../Wrapper";
 import { navLinks } from "@/app/utils/data";
-import classNames from "classnames";``
+import classNames from "classnames";import gsap from "gsap";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -13,12 +14,21 @@ const Nav = () => {
     <nav className="py-4 fixed top-0 left-0 w-full z-50">
       <Wrapper className="w-full flex items-center justify-between">
         <div className="flex items-center justify-center bg-black text-background px-2 py-px text-body">
-          <Link href='/'>
-            <span className="mr-1 md:mr-2">224</span>
-            <span className="">reels</span>
-          </Link>
+          {
+            pathName === '/' || pathName === '/works' || pathName === '/info' ? (
+              <Link href='/'>
+                <span className="mr-1 md:mr-2">224</span>
+                <span className="">reels</span>
+              </Link>
+            ) : (
+              <Link href='/works'>
+                <span className="">Close</span>
+              </Link>
+            )
+          }
+
         </div>
-        <div className=""> 
+        <div className="">
           <ul className="flex items-center justify-center gap-1 md:gap-2">
             {navLinks.map((link, idx) => {
               return (
