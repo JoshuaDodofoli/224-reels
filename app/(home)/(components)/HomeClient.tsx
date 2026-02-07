@@ -107,7 +107,6 @@ export default function Home() {
             </ul>
           </div>
         </div>
-
       </div>
       <div className="block lg:hidden h-full">
         <MobileScreen />

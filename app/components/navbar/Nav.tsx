@@ -10,7 +10,7 @@ const Nav = () => {
   const pathName = usePathname();
 
   return (
-    <nav className="py-3 fixed top-0 left-0 w-full z-50">
+    <nav className="py-4 fixed top-0 left-0 w-full z-50">
       <Wrapper className="w-full flex items-center justify-between">
         <div className="flex items-center justify-center bg-black text-background px-2 py-px text-body">
           <Link href='/'>

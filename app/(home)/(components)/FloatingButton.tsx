@@ -37,7 +37,7 @@ const FloatingButton = ({ reelTitle, next, prev, allTitles = [], currentIndex = 
             opacity: 1,
             y: 0,
             duration: 0.6,
-            ease: 'circ.out',
+            ease: 'power2.out',
         })
 
     }, [reelTitle])
@@ -124,20 +124,21 @@ const FloatingButton = ({ reelTitle, next, prev, allTitles = [], currentIndex = 
                     onClick={prev}
                     className='radius button-style size-8 flex items-center justify-center text-body hover:bg-grey-500/50 transition-colors'
                 >
-                    &#11164;
+                    ◄
                 </button>
-                <span
-                    ref={titleRef}
+                <div
                     onClick={toggleExpand}
                     className='radius button-style px-4 h-8 flex items-center justify-center text-body font-sans whitespace-nowrap overflow-hidden cursor-pointer hover:bg-grey-500/50 transition-colors'
                 >
-                    {reelTitle}
-                </span>
+                    <span ref={titleRef}>
+                        {reelTitle}
+                    </span>
+                </div>
                 <button
                     onClick={next}
                     className='radius button-style size-8 flex items-center justify-center text-body hover:bg-grey-500/50 transition-colors'
                 >
-                    &#11166;
+                    ►
                 </button>
             </div>
         </div>

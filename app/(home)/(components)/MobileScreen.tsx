@@ -51,7 +51,7 @@ const MobileScreen = () => {
                 </div>
             </div>
 
-            <div className="absolute bottom-6 w-full flex items-center justify-center">
+            <div className="absolute bottom-4 w-full flex items-center justify-center">
                 <FloatingButton
                     next={next}
                     prev={prev}
