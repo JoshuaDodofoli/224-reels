@@ -12,7 +12,6 @@ interface PageProps {
 const page = async ({ params }: PageProps) => {
 
     const { slug } = await params;
-    // const router = useRouter();
 
     const reel = reelsData.find((r) => r.slug === slug);
 
@@ -30,10 +29,11 @@ const page = async ({ params }: PageProps) => {
                             className="object-cover object-center"
                         />
                     </div>
+                    <div className="absolute inset-0 bg-black opacity-20"></div>
                 </div>
-                <div className="flex z-20 items-center h-dvh">
-                    <h1>{reel?.title}</h1>
-                    <p>{reel?.desc}</p>
+                <div className="flex z-20 items-center pb-6 font-sans justify-end flex-col w-full h-dvh">
+                    <h1 className="text-h3 font-semibold">{reel?.title}</h1>
+                    <p className="text-body">{reel?.desc}</p>
                 </div>
             </div>
         </Wrapper>

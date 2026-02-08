@@ -8,15 +8,18 @@ import gsap from "gsap";
 
 const MobileScreen = () => {
     const reelTitles = reelsData.map((reel) => reel.title);
+  const slicedReels = reelsData.slice(3, 8);
+
+    const slicedTitles = slicedReels.map((reel) => reel.title);
     const [currentReel, setCurrentReel] = useState(0);
     const imgContainerRef = useRef<HTMLDivElement>(null);
 
     const next = () => {
-        setCurrentReel((prev) => (prev + 1) % reelsData.length);
+        setCurrentReel((prev) => (prev + 1) % slicedReels.length);
     }
 
     const prev = () => {
-        setCurrentReel((prev) => (prev - 1 + reelsData.length) % reelsData.length);
+        setCurrentReel((prev) => (prev - 1 + slicedReels.length) % reelsData.length);
     }
 
     const handleTitleClick = (index: number) => {
@@ -38,25 +41,29 @@ const MobileScreen = () => {
         )
     }, [currentReel])
 
+    
+
     return (
         <section className="w-full h-dvh">
             <div className="w-full h-full fixed inset-0">
                 <div ref={imgContainerRef} className="relative w-full h-full">
                     <Image
-                        src={reelsData[currentReel].img}
-                        alt={reelsData[currentReel].title}
+                        src={slicedReels[currentReel].img}
+                        alt={slicedReels[currentReel].title}
                         fill
                         className="object-cover object-center"
                     />
                 </div>
+                    <div className="absolute inset-0 bg-black opacity-20"></div>
+
             </div>
 
             <div className="absolute bottom-4 w-full flex items-center justify-center">
                 <FloatingButton
                     next={next}
                     prev={prev}
-                    reelTitle={reelTitles[currentReel]}
-                    allTitles={reelTitles}
+                    reelTitle={slicedReels[currentReel].title}
+                    allTitles={slicedTitles}
                     currentIndex={currentReel}
                     onTitleClick={handleTitleClick}
                 />

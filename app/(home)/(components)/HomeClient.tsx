@@ -32,6 +32,9 @@ export default function Home() {
     setHoveredReel(null);
   }
 
+  const slicedReels = reelsData.slice(3, 8);
+
+
   const displayedReel = hoveredReel !== null ? hoveredReel : currentReel;
 
   useGSAP(() => {
@@ -57,12 +60,14 @@ export default function Home() {
           return ( */}
           <div ref={imgContainer} className="relative w-full h-full">
             <Image
-              src={reelsData[displayedReel].img}
-              alt={reelsData[displayedReel].title}
+              src={slicedReels[displayedReel].img}
+              alt={slicedReels[displayedReel].title}
               fill
               className="object-cover object-center"
             />
           </div>
+                    <div className="absolute inset-0 bg-black opacity-20"></div>
+
           {/* )
         })} */}
           {/* {reelsData.map((reel, idx) => {
@@ -82,7 +87,7 @@ export default function Home() {
         <div className="w-full h-full relative flex items-end justify-center pb-6">
           <div className="hidden lg:block">
             <ul className="text-background flex max-w-lg flex-wrap items-center justify-center w-full gap-0 md:gap-1">
-              {reelsData.map((reel, idx) => {
+              {slicedReels.map((reel, idx) => {
                 return (
                   <li key={idx} className="flex gap-1 items-center">
                     <span

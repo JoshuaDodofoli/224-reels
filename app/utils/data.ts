@@ -19,7 +19,7 @@ export const reelsData = [
     slug: "first",
     title: "First reel",
     desc: "Inaugural Excitement",
-    type: "reel"
+    type: "snippet"
   },
   {
     img: "/images/img-2.webp",
@@ -33,14 +33,14 @@ export const reelsData = [
     slug: "third",
     title: "Third reel here",
     desc: "Emotional Blend",
-    type: "reel"
+    type: "snippet"
   },
   {
     img: "/images/img-4.webp",
     slug: "fourth",
     title: "Ya, Fourth reel",
     desc: "Lively Energy",
-    type: "snippet"
+    type: "reel"
   },
   {
     img: "/images/img-5.webp",
@@ -49,4 +49,25 @@ export const reelsData = [
     desc: "Epic Finale",
     type: "snippet"
   },
+  {
+    img: "/images/img-6.webp",
+    slug: "sixth",
+    title: "Sixth reel",
+    desc: "Thrilling Adventure",
+    type: "reel"
+  },
+  {
+    img: "/images/img-7.webp",
+    slug: "seventh",
+    title: "Seventh reel",
+    desc: "Thrilling Adventure",
+    type: "snippet"
+  },
+  {
+    img: "/images/img-8.webp",
+    slug: "eighth",
+    title: "Eighth reel",
+    desc: "Thrilling Adventure",
+    type: "reel"
+  }
 ];
