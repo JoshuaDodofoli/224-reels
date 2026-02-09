@@ -19,7 +19,7 @@ const MobileScreen = () => {
     }
 
     const prev = () => {
-        setCurrentReel((prev) => (prev - 1 + slicedReels.length) % reelsData.length);
+        setCurrentReel((prev) => (prev - 1 + slicedReels.length) % slicedReels.length);
     }
 
     const handleTitleClick = (index: number) => {

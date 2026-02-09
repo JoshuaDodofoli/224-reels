@@ -46,6 +46,7 @@ const SlugClient = ({ reel }: SlugClientProps) => {
             opacity: 1,
             y: 0,
             duration: 0.6,
+            delay: 0.3,
             ease: 'power2.out',
             stagger: {
                 each: 0.1
@@ -57,7 +58,7 @@ const SlugClient = ({ reel }: SlugClientProps) => {
         }, {
             opacity: 1,
             duration: 0.6,
-            delay: 0.3,
+            delay: 0.6,
             ease: 'power2.out',
             stagger: {
                 each: 0.1
