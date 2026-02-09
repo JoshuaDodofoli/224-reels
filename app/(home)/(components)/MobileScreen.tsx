@@ -51,6 +51,7 @@ const MobileScreen = () => {
                         src={slicedReels[currentReel].img}
                         alt={slicedReels[currentReel].title}
                         fill
+                        priority
                         className="object-cover object-center"
                     />
                 </div>

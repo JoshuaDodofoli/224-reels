@@ -24,7 +24,7 @@ const Work = ({ selected }: WorkProps) => {
         if (!containerRef.current) return;
 
         gsap.fromTo(containerRef.current.children, {
-            opacity: 0,
+            opacity: 0.15,
             y: 20,
         }, {
             opacity: 1,
@@ -36,7 +36,7 @@ const Work = ({ selected }: WorkProps) => {
                 from: 'start'
             }
         })
-    }, [selected]) // Re-animate when filter changes
+    }, [selected]) 
 
     return (
         <div ref={containerRef} className="grid grid-cols-1 lg:grid-cols-2 gap-1 w-full h-full">
@@ -46,7 +46,7 @@ const Work = ({ selected }: WorkProps) => {
                 ))
             ) : (
                 <p className="text-grey-400 col-span-2 text-center py-12">
-                    No items found
+                    No reels found
                 </p>
             )}
         </div>
