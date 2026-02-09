@@ -29,9 +29,11 @@ const Card = ({ reel }: CardProps) => {
     useGSAP(() => {
         if (!imgContainer.current || !imgRef.current) return;
 
-        gsap.fromTo(imgRef.current, {
-            yPercent: -10,
-        }, {
+        gsap.set(imgRef.current, {
+            yPercent: -10
+        })
+
+        gsap.to(imgRef.current, {
             yPercent: 10,
             ease: 'none',
             scrollTrigger: {

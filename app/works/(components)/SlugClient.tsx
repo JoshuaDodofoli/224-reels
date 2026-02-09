@@ -28,21 +28,25 @@ const SlugClient = ({ reel }: SlugClientProps) => {
         if (!titleRef.current) return
         if (!descRef.current) return
 
-        gsap.fromTo(imgRef.current, {
+        gsap.set(imgRef.current, {
             scale: 1.015,
             opacity: 0.5
-        }, {
+        })
+
+        gsap.to(imgRef.current, {
             scale: 1,
             opacity: 1,
             duration: 0.6,
             ease: 'power2.inOut'
         })
 
-        gsap.fromTo(titleRef.current, {
+        gsap.set(titleRef.current, {
             opacity: 0,
             rotateX: 40,
             y: 10
-        }, {
+        })
+
+        gsap.to(titleRef.current, {
             opacity: 1,
             y: 0,
             duration: 0.6,
@@ -53,9 +57,11 @@ const SlugClient = ({ reel }: SlugClientProps) => {
             }
         })
 
-        gsap.fromTo(descRef.current, {
-            opacity: 0,
-        }, {
+        gsap.set(descRef.current, {
+            opacity: 0
+        })
+
+        gsap.to(descRef.current, {
             opacity: 1,
             duration: 0.6,
             delay: 0.6,

@@ -8,7 +8,7 @@ import gsap from "gsap";
 
 const MobileScreen = () => {
     const reelTitles = reelsData.map((reel) => reel.title);
-  const slicedReels = reelsData.slice(3, 8);
+    const slicedReels = reelsData.slice(3, 8);
 
     const slicedTitles = slicedReels.map((reel) => reel.title);
     const [currentReel, setCurrentReel] = useState(0);
@@ -29,10 +29,12 @@ const MobileScreen = () => {
     useGSAP(() => {
         if (!imgContainerRef.current) return;
 
-        gsap.fromTo(imgContainerRef.current, {
+        gsap.set(imgContainerRef.current, {
             opacity: 0.3,
             scale: 1.02,
-        }, {
+        })
+
+        gsap.to(imgContainerRef.current, {
             opacity: 1,
             scale: 1,
             duration: 0.6,
@@ -41,7 +43,7 @@ const MobileScreen = () => {
         )
     }, [currentReel])
 
-    
+
 
     return (
         <section className="w-full h-dvh">
@@ -55,7 +57,7 @@ const MobileScreen = () => {
                         className="object-cover object-center"
                     />
                 </div>
-                    <div className="absolute inset-0 bg-black opacity-20"></div>
+                <div className="absolute inset-0 bg-black opacity-20"></div>
 
             </div>
 

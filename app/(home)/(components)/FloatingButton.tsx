@@ -8,10 +8,9 @@ interface FloatingButtonProps {
     reelTitle?: string;
     next: () => void;
     prev: () => void;
-    allTitles?: string[]; // Array of strings (titles)
+    allTitles?: string[];
     currentIndex?: number;
     onTitleClick?: (index: number) => void;
-    // Removed unused slicedReels prop
 }
 
 const FloatingButton = ({ reelTitle, next, prev, allTitles = [], currentIndex = 0, onTitleClick }: FloatingButtonProps) => {

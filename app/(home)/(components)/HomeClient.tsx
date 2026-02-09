@@ -33,10 +33,12 @@ export default function Home() {
   useGSAP(() => {
     if (!imgContainer.current) return;
 
-    gsap.fromTo(imgContainer.current, {
+    gsap.set(imgContainer.current, {
       opacity: 0.3,
       scale: 1.01,
-    }, {
+    })
+
+    gsap.to(imgContainer.current, {
       opacity: 1,
       scale: 1,
       duration: 0.6,

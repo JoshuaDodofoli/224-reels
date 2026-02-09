@@ -25,10 +25,12 @@ const page = () => {
   useGSAP(() => {
     if (!filterRef.current || !lineRef.current) return;
 
-    gsap.fromTo(filterRef.current, {
+    gsap.set(filterRef.current, {
       opacity: 0,
       y: 10
-    }, {
+    })
+
+    gsap.to(filterRef.current, {
       opacity: 1,
       y: 0,
       duration: 0.4,
@@ -39,10 +41,11 @@ const page = () => {
       }
     })
 
-    gsap.fromTo(lineRef.current, {
+    gsap.set(lineRef.current, {
       opacity: 0,
       y: 10
-    }, {
+    })
+    gsap.to(lineRef.current, {
       opacity: 1,
       y: 0,
       duration: 0.4,
@@ -65,7 +68,7 @@ const page = () => {
                 <div ref={(el) => { filterRef.current[idx] = el }} onClick={() => handleSelect(idx)} className={classNames("flex gap-2 cursor-pointer", idx === selected ? "text-white" : "text-grey-400")}>
                   <span className=" hover:underline underline-offset-4 duration-300">{f.name}</span>
                 </div>
-                <span ref={(el) => { lineRef.current[idx] = el }}  className="lg:ml-1 text-background text-caption">{idx < filters.length - 1 && "|"}</span>
+                <span ref={(el) => { lineRef.current[idx] = el }} className="lg:ml-1 text-background text-caption">{idx < filters.length - 1 && "|"}</span>
               </div>
             )
           })}
