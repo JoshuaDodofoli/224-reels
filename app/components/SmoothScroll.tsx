@@ -1,7 +1,7 @@
 'use client'
 import gsap from 'gsap'
 import { ReactLenis } from 'lenis/react'
-import { Children, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 interface Props {
     children: React.ReactNode
@@ -15,7 +15,7 @@ function SmoothScroll({ children }: Props) {
             lenisRef.current?.lenis?.raf(time * 1000)
         }
 
-        gsap.ticker.add(update)
+        gsap.ticker.add(update);
 
         return () => gsap.ticker.remove(update)
     }, [])

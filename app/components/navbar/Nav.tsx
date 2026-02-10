@@ -49,7 +49,7 @@ const Nav = () => {
                       <li className={classNames(pathName === link.path && 'underline ', "font-sans text-body lg:text-lg underline-offset-3 text-background hover:text-grey-400 duration-300")}>
                         <Link href={link.path}>{link.title}</Link>
                       </li>
-                      <span className="font-bold text-caption text-background">
+                      <span className="font-bold text-caption mr-1 text-background flex justify-center">
                         {idx < navLinks.length - 1 && '|'}
                       </span>
                     </div>

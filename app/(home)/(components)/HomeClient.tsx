@@ -72,8 +72,8 @@ export default function Home() {
                       onMouseLeave={handleMouseLeave}
                       onClick={() => handleClick(idx)}
                       className={classNames(
-                        'cursor-pointer text-body md:text-xl hover:text-grey-400 duration-300 font-sans font-medium tracking-wide',
-                        currentReel === idx && 'text-grey-400'
+                        'cursor-pointer text-body md:text-xl hover:text-grey-400 duration-300 font-sans  tracking-wide',
+                        currentReel === idx && 'text-grey-200/70'
                       )}
                     >
                       {reel.title}

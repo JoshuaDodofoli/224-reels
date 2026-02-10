@@ -108,7 +108,7 @@ const FloatingButton = ({ reelTitle, next, prev, allTitles = [], currentIndex = 
         <div ref={titleRefContainer} className="text-background flex flex-col items-center gap-2">
             <ul
                 ref={listRef}
-                className="overflow-hidden opacity-0 h-0 bg-grey-500/30 backdrop-blur-xl rounded-lg w-full max-w-xs" // Verify 'grey-500' in Tailwind config
+                className="overflow-hidden opacity-0 h-0 bg-grey-500/30 backdrop-blur-xl rounded-lg w-full max-w-xs" 
             >
                 {allTitles.map((title, idx) => (
                     <li
@@ -123,10 +123,10 @@ const FloatingButton = ({ reelTitle, next, prev, allTitles = [], currentIndex = 
                 ))}
             </ul>
 
-            <div className="flex radius items-center justify-center gap-2 bg-grey-500/30 backdrop-blur-xl p-2"> {/* Assuming 'radius' is custom */}
+            <div className="flex rounded-full items-center justify-center gap-2 bg-grey-500/30 backdrop-blur-xl p-2"> 
                 <button
                     onClick={prev}
-                    className="radius button-style size-8 flex items-center justify-center text-body hover:bg-grey-500/50 transition-colors" // Add aria-label="Previous"
+                    className="radius button-style size-8 flex items-center justify-center text-body hover:bg-grey-500/50 transition-colors"
                     aria-label="Previous"
                 >
                     ◄
@@ -141,7 +141,7 @@ const FloatingButton = ({ reelTitle, next, prev, allTitles = [], currentIndex = 
                 </div>
                 <button
                     onClick={next}
-                    className="radius button-style size-8 flex items-center justify-center text-body hover:bg-grey-500/50 transition-colors" // Add aria-label="Next"
+                    className="radius button-style size-8 flex items-center justify-center text-body hover:bg-grey-500/50 transition-colors" 
                     aria-label="Next"
                 >
                     ►

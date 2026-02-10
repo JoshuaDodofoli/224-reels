@@ -54,7 +54,7 @@ const page = () => {
         each: 0.1,
         from: 'start'
       }
-    })
+    }) 
 
   }, [])
 
