@@ -15,6 +15,7 @@ export const navLinks = [
 
 export const reelsData = [
   {
+    id: 0,
     img: "/images/img-1.webp",
     slug: "first",
     title: "First reel",
@@ -22,6 +23,7 @@ export const reelsData = [
     type: "snippet"
   },
   {
+    id: 1,
     img: "/images/img-2.webp",
     slug: "second",
     title: "Second reel",
@@ -29,6 +31,7 @@ export const reelsData = [
     type: "reel"
   },
   {
+    id: 2,
     img: "/images/img-3.webp",
     slug: "third",
     title: "Third reel here",
@@ -36,6 +39,7 @@ export const reelsData = [
     type: "snippet"
   },
   {
+    id: 3,
     img: "/images/img-4.webp",
     slug: "fourth",
     title: "Ya, Fourth reel",
@@ -43,6 +47,7 @@ export const reelsData = [
     type: "reel"
   },
   {
+    id: 4,
     img: "/images/img-5.webp",
     slug: "fifth",
     title: "Finally, Fifth reel",
@@ -50,6 +55,7 @@ export const reelsData = [
     type: "snippet"
   },
   {
+    id: 5,
     img: "/images/img-6.webp",
     slug: "sixth",
     title: "Sixth reel",
@@ -57,6 +63,7 @@ export const reelsData = [
     type: "reel"
   },
   {
+    id: 6,
     img: "/images/img-7.webp",
     slug: "seventh",
     title: "Seventh reel",
@@ -64,6 +71,7 @@ export const reelsData = [
     type: "snippet"
   },
   {
+    id: 7,
     img: "/images/img-8.webp",
     slug: "eighth",
     title: "Eighth reel",

@@ -6,6 +6,7 @@ import classNames from "classnames"; import gsap from "gsap";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef } from "react";
+import ButtonBorder from "../ButtonBorder";
 
 const Nav = () => {
 
@@ -40,6 +41,13 @@ const Nav = () => {
           </Link>
         </div>
         <div>
+          <button className="w-full">
+            <ButtonBorder className="px-3 bg-black/10 backdrop-blur-md text-body font-sans border-background/30 border-[0.1px]">
+              Menu
+            </ButtonBorder>
+          </button>
+        </div>
+        {/* <div>
           {
             isHomePage ? (
               <ul ref={linkRef} className="flex items-center justify-center gap-1 md:gap-2">
@@ -64,7 +72,7 @@ const Nav = () => {
               </div>
             )
           }
-        </div>
+        </div> */}
       </Wrapper>
     </nav>
   )
