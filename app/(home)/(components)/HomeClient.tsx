@@ -61,34 +61,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-black opacity-20"></div>
         </div>
 
-        <div className="w-full h-full relative flex items-end justify-center pb-6">
-          <div className="hidden lg:block">
-            <ul className="text-background flex max-w-lg flex-wrap items-center justify-center w-full gap-0 md:gap-1">
-              {slicedReels.map((reel, idx) => {
-                return (
-                  <li key={idx} className="flex gap-1 items-center">
-                    <span
-                      onMouseEnter={() => handleHover(idx)}
-                      onMouseLeave={handleMouseLeave}
-                      onClick={() => handleClick(idx)}
-                      className={classNames(
-                        'cursor-pointer text-body md:text-xl hover:text-grey-400 duration-300 font-sans  tracking-wide',
-                        currentReel === idx && 'text-grey-200/70'
-                      )}
-                    >
-                      {reel.title}
-                    </span>
-                    {idx < slicedReels.length - 1 && (
-                      <span className="font-medium text-body md:text-xl">
-                        /
-                      </span>
-                    )}
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-        </div>
+      
       </div>
       <div className="block lg:hidden h-full">
         <MobileScreen />
