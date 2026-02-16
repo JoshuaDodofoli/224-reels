@@ -34,16 +34,18 @@ const Nav = () => {
   return (
     <nav className="py-4 fixed top-0 left-0 w-full z-50">
       <Wrapper className="w-full flex items-center justify-between">
-        <div className="flex items-center justify-center bg-black text-background px-2 py-px text-body lg:text-lg font-sans rounded-sm">
-          <Link href='/'>
-            <span className="mr-1 md:mr-2">224</span>
-            <span className="">reels</span>
-          </Link>
-        </div>
+        <ButtonBorder>
+          <div className="flex items-center justify-center px-2 md:px-4 py-px text-body font-sans rounded-sm">
+            <Link href='/'>
+              <span className="mr-1 md:mr-2">224</span>
+              <span className="">reels</span>
+            </Link>
+          </div>
+        </ButtonBorder>
         <div>
-          <button className="w-full">
-            <ButtonBorder className="px-3 bg-black/10 backdrop-blur-md text-body font-sans border-background/30 border-[0.1px]">
-              Menu
+          <button className="w-full px-3 cursor-pointer text-body flex items-center justify-center gap-2 font-sans">
+            <ButtonBorder>
+              <span className="px-2 md:px-4">Menu</span>
             </ButtonBorder>
           </button>
         </div>

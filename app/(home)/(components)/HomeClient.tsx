@@ -8,6 +8,7 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import Wrapper from "@/app/components/Wrapper";
 import ButtonBorder from "@/app/components/ButtonBorder";
+import Link from "next/link";
 
 export default function Home() {
 
@@ -16,6 +17,16 @@ export default function Home() {
   // const reelsData = reelsData.slice(4, 7);
   const nextId = (currentReel + 1) % reelsData.length;
   const previousId = (currentReel - 1 + reelsData.length) % reelsData.length;
+
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentReel((prev) => (prev + 1) % reelsData.length);
+    }, 2000);
+
+    return () => clearInterval(interval);
+
+  }, [currentReel]);
 
   return (
     <div className="w-full min-h-screen">
@@ -29,7 +40,7 @@ export default function Home() {
             <span className="text-h3 font-semibold font-sans">{reelsData[currentReel].title}</span>
           </div>
         </div>
-        <div className="absolute left-0 bottom-7 flex items-center justify-center w-full z-20">
+        {/* <div className="absolute left-0 bottom-7 flex items-center justify-center w-full z-20">
           <div  className="space-x-5">
             <span className="text-caption font-medium font-sans text-background/70">{previousId}</span>
             <ButtonBorder className="inline-block">
@@ -37,16 +48,28 @@ export default function Home() {
             </ButtonBorder>
             <span className="text-caption font-medium font-sans text-background/70">{nextId}</span>
           </div>
-        </div>
+        </div> */}
 
       </section>
 
-      <section className="w-full min-h-screen text-background bg-black">
-        <Wrapper className="space-y-12 py-32">
-          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates laboriosam nisi accusantium nihil aspernatur tenetur perspiciatis assumenda, doloremque ad placeat harum sunt quam excepturi aperiam sed voluptas, facere quas, blanditiis eveniet debitis hic odit dolores fuga molestiae. Rem repudiandae non exercitationem consequatur praesentium impedit illo placeat, enim minima aperiam delectus beatae vel odit nostrum facilis quidem libero aut, dolorum aliquam.</p>
-          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates laboriosam nisi accusantium nihil aspernatur tenetur perspiciatis assumenda, doloremque ad placeat harum sunt quam excepturi aperiam sed voluptas, facere quas, blanditiis eveniet debitis hic odit dolores fuga molestiae. Rem repudiandae non exercitationem consequatur praesentium impedit illo placeat, enim minima aperiam delectus beatae vel odit nostrum facilis quidem libero aut, dolorum aliquam.</p>
-          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates laboriosam nisi accusantium nihil aspernatur tenetur perspiciatis assumenda, doloremque ad placeat harum sunt quam excepturi aperiam sed voluptas, facere quas, blanditiis eveniet debitis hic odit dolores fuga molestiae. Rem repudiandae non exercitationem consequatur praesentium impedit illo placeat, enim minima aperiam delectus beatae vel odit nostrum facilis quidem libero aut, dolorum aliquam.</p>
-        </Wrapper>
+      <section className="w-full relative text-background bg-black">
+        <div className="relative w-full h-screen">
+          <Image
+            fill
+            src={reelsData[5].img}
+            alt={reelsData[6].title}
+            className="object-cover object-center"
+          />
+        </div>
+        <div className="w-full h-full bg-black/20 inset-0 absolute" />
+        <div className="absolute top-1/2 left-1/2 text-center max-w-xs md:max-w-md w-full -translate-x-1/2 -translate-y-1/2 z-30">
+          <p className="text-h3 md:text-h2 leading-[1.1] font-sans font-medium">I observe and just take the shot if I like it.</p>
+          <button className="pt-5 md:pt-8 cursor-pointer">
+            <Link href="/shots">
+              <ButtonBorder><span className="px-4 font-sans">Wanna see some shots?</span></ButtonBorder>
+            </Link>
+          </button>
+        </div>
       </section>
 
     </div>

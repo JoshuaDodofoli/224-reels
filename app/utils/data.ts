@@ -1,11 +1,11 @@
 export const navLinks = [
   {
-    title: "Home",
+    title: "224 reels", 
     path: "/",
   },
   {
-    title: "Works",
-    path: "/works",
+    title: "shots",
+    path: "/shots",
   },
   {
     title: "Info",
