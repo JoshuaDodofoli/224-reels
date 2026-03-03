@@ -36,7 +36,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${clashGrotesk.variable} antialiased`}
       >
         <SmoothScroll>
-          <Nav />
+          {/* <Nav /> */}
           {children}
         </SmoothScroll>
       </body>

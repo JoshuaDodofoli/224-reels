@@ -34,8 +34,8 @@
 }
 
 body {  
-  background: var(--black);
-  color: var(--grey-200);
+  background: var(--grey-200);
+  /* color: var(--grey-200); */
   font-family: Arial, Helvetica, sans-serif;
 }
 
