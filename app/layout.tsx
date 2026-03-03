@@ -4,6 +4,7 @@ import "./globals.css";
 import localFont from 'next/font/local';
 import Nav from "./components/navbar/Nav";
 import SmoothScroll from "./components/SmoothScroll";
+import Footer from "./components/Footer";
 
 const clashGrotesk = localFont({
   src: '../app/fonts/ClashGrotesk-Variable.woff2',
@@ -38,6 +39,7 @@ export default function RootLayout({
         <SmoothScroll>
           <Nav />
           {children}
+          <Footer />
         </SmoothScroll>
       </body>
     </html>
