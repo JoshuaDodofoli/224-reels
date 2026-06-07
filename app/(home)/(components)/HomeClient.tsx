@@ -1,97 +1,101 @@
 'use client'
-import { useRef, useState, useEffect } from "react";
-import { VideoAsset } from "@/app/utils/types";
-import { reelsData } from "@/app/utils/data";
-import Image from "next/image";
-import MobileScreen from "./MobileScreen";
-import classNames from "classnames";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
+import { reelsData } from '@/app/utils/data';
+import Image from 'next/image';
+import { useRef, useEffect, useState } from 'react';
 
 export default function Home() {
-  const [currentReel, setCurrentReel] = useState(0);
-  const [hoveredReel, setHoveredReel] = useState<number | null>(null);
-  const imgContainer = useRef<HTMLDivElement>(null);
+  const reels = reelsData.slice(0, 6);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  const slicedReels = reelsData.slice(3, 8);
+  useEffect(() => {
+    let accumulated = 0;
+    let timeout: ReturnType<typeof setTimeout> | null = null;
 
-  const handleHover = (idx: number) => {
-    setHoveredReel(idx);
-  }
+    const handleWheel = (e: WheelEvent) => {
+    e.preventDefault();
+    const container = scrollRef.current;
+    if (!container) return;
 
-  const handleMouseLeave = () => {
-    setHoveredReel(null);
-  }
+    accumulated += e.deltaY;
 
-  const handleClick = (idx: number) => {
-    setCurrentReel(idx);
-    setHoveredReel(null);
-  }
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      const slideHeight = container.clientHeight;
+      const currentIndex = Math.round(container.scrollTop / slideHeight);
+      const direction = accumulated > 0 ? 1 : -1;
+      const nextIndex = Math.min(Math.max(currentIndex + direction, 0), reels.length - 1);
 
-  const displayedReel = hoveredReel !== null ? hoveredReel : currentReel;
+      container.scrollTo({ top: nextIndex * slideHeight, behavior: 'smooth' });
+      accumulated = 0;
+    }, 50);
+  };
 
-  useGSAP(() => {
-    if (!imgContainer.current) return;
+    const handleScroll = () => {
+      const container = scrollRef.current;
+      if (!container) return;
+      const index = Math.round(container.scrollTop / container.clientHeight);
+      setActiveIndex(index);
+    };
 
-    gsap.set(imgContainer.current, {
-      opacity: 0.3,
-      scale: 1.01,
-    })
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    scrollRef.current?.addEventListener('scroll', handleScroll);
 
-    gsap.to(imgContainer.current, {
-      opacity: 1,
-      scale: 1,
-      duration: 0.6,
-      ease: 'power2.inOut',
-    })
-  }, [displayedReel])
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      scrollRef.current?.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   return (
-    <section className="w-full h-dvh">
-      <div className=" h-full hidden lg:block">
-        <div className="w-full h-full fixed inset-0">
-          <div ref={imgContainer} className="relative w-full h-full">
-            <Image
-              src={slicedReels[displayedReel].img}
-              alt={slicedReels[displayedReel].title}
-              fill
-              className="object-cover object-center"
-            />
+    <section className="w-full h-dvh flex justify-center items-center">
+      <div className="min-w-sm w-2/4">
+        <div className="relative aspect-video">
+          <div
+            ref={scrollRef}
+            className="absolute inset-0 flex flex-col overflow-y-auto snap-y snap-mandatory"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {reels.map((reel) => (
+              <div key={reel.slug} className="relative w-full h-full snap-center shrink-0">
+                <Image
+                  src={reel.img}
+                  alt={reel.desc}
+                  fill
+                  className="object-center object-cover"
+                />
+              </div>
+            ))}
           </div>
-          <div className="absolute inset-0 bg-black opacity-20"></div>
         </div>
 
-        <div className="w-full h-full relative flex items-end justify-center pb-6">
-          <div className="hidden lg:block">
-            <ul className="text-background flex max-w-lg flex-wrap items-center justify-center w-full gap-0 md:gap-1">
-              {slicedReels.map((reel, idx) => {
-                return (
-                  <li key={idx} className="flex gap-1 items-center">
-                    <span
-                      onMouseEnter={() => handleHover(idx)}
-                      onMouseLeave={handleMouseLeave}
-                      onClick={() => handleClick(idx)}
-                      className={classNames(
-                        'cursor-pointer text-body md:text-xl hover:text-grey-400 duration-300 font-sans  tracking-wide',
-                        currentReel === idx && 'text-grey-200/70'
-                      )}
-                    >
-                      {reel.title}
-                    </span>
-                    {idx < slicedReels.length - 1 && (
-                      <span className="font-medium text-body md:text-xl">
-                        /
-                      </span>
-                    )}
-                  </li>
-                )
-              })}
-            </ul>
+        <div className="flex flex-col w-full py-3 gap-5">
+          <div className="flex justify-between items-center">
+            {[...Array(50)].map((_, id) => {
+              const filled = id < Math.round((activeIndex / (reels.length - 1)) * 50);
+              return (
+                <span
+                  key={id}
+                  className={`w-px h-1.5 transition-colors duration-300 ${filled ? 'bg-black' : 'bg-black/20'}`}
+                />
+              );
+            })}
           </div>
+
+          {/* Slide numbers */}
+          <ul className="flex justify-between">
+            {reels.map((_, idx) => (
+              <li
+                key={idx}
+                className={`font-mono font-medium text-xs md:text-sm transition-opacity duration-300 ${
+                  idx === activeIndex ? 'opacity-100' : 'opacity-30'
+                }`}
+              >
+                0{idx + 1}
+              </li>
+            ))}
+          </ul>
         </div>
-      </div>
-      <div className="block lg:hidden h-full">
-        <MobileScreen />
       </div>
     </section>
   );

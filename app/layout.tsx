@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Inconsolata } from "next/font/google";
 import "./globals.css";
 import localFont from 'next/font/local';
 import Nav from "./components/navbar/Nav";
@@ -10,13 +10,13 @@ const clashGrotesk = localFont({
   variable: '--clash-grotesk'
 })
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inconsolata = Inconsolata({
+  variable: "--font-inconsolata",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${clashGrotesk.variable} antialiased`}
+        className={`${inconsolata.variable} ${inter.variable} ${clashGrotesk.variable} antialiased`}
       >
         <SmoothScroll>
           <Nav />
