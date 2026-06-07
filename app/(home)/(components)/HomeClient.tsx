@@ -7,35 +7,37 @@ export default function Home() {
   const reels = reelsData.slice(0, 6);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
     let accumulated = 0;
     let timeout: ReturnType<typeof setTimeout> | null = null;
 
     const handleWheel = (e: WheelEvent) => {
-    e.preventDefault();
-    const container = scrollRef.current;
-    if (!container) return;
+      e.preventDefault();
+      const container = scrollRef.current;
+      if (!container) return;
 
-    accumulated += e.deltaY;
+      accumulated += e.deltaY;
 
-    if (timeout) clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      const slideHeight = container.clientHeight;
-      const currentIndex = Math.round(container.scrollTop / slideHeight);
-      const direction = accumulated > 0 ? 1 : -1;
-      const nextIndex = Math.min(Math.max(currentIndex + direction, 0), reels.length - 1);
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        const slideHeight = container.clientHeight;
+        const currentIndex = Math.round(container.scrollTop / slideHeight);
+        const direction = accumulated > 0 ? 1 : -1;
+        const nextIndex = Math.min(Math.max(currentIndex + direction, 0), reels.length - 1);
 
-      container.scrollTo({ top: nextIndex * slideHeight, behavior: 'smooth' });
-      accumulated = 0;
-    }, 50);
-  };
+        container.scrollTo({ top: nextIndex * slideHeight, behavior: 'smooth' });
+        accumulated = 0;
+      }, 50);
+    };
 
     const handleScroll = () => {
       const container = scrollRef.current;
       if (!container) return;
-      const index = Math.round(container.scrollTop / container.clientHeight);
-      setActiveIndex(index);
+      const progress = container.scrollTop / container.clientHeight;
+      setScrollProgress(progress);
+      setActiveIndex(Math.round(progress));
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
@@ -70,13 +72,22 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col w-full py-3 gap-5">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-start h-1">
             {[...Array(50)].map((_, id) => {
-              const filled = id < Math.round((activeIndex / (reels.length - 1)) * 50);
+              // Calculate the center point based on the exact scroll progress
+              const centerIndex = (scrollProgress / (reels.length - 1)) * 49;
+              const distance = Math.abs(id - centerIndex);
+
+              // Determine height and color based on distance from the center point
+              let styles = 'h-1 bg-black/30';
+              if (distance < 1.5) styles = 'h-3 bg-black';
+              else if (distance < 3.5) styles = 'h-2 bg-black/60';
+              else if (distance < 6.5) styles = 'h-1 bg-black/40';
+
               return (
                 <span
                   key={id}
-                  className={`w-px h-1.5 transition-colors duration-300 ${filled ? 'bg-black' : 'bg-black/20'}`}
+                  className={`w-px rounded-full transition-all duration-100 ease-out ${styles}`}
                 />
               );
             })}
@@ -87,9 +98,8 @@ export default function Home() {
             {reels.map((_, idx) => (
               <li
                 key={idx}
-                className={`font-mono font-medium text-xs md:text-sm transition-opacity duration-300 ${
-                  idx === activeIndex ? 'opacity-100' : 'opacity-30'
-                }`}
+                className={`font-mono font-medium text-xs md:text-sm transition-opacity duration-300 ${idx === activeIndex ? 'opacity-100' : 'opacity-30'
+                  }`}
               >
                 0{idx + 1}
               </li>
