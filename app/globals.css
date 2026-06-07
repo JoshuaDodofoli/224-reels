@@ -57,5 +57,5 @@ body {
 }
 
 p, span, li {
-  @apply tracking-tighter text-grey-500
+  @apply tracking-tighter text-grey-500 font-sans
 }
