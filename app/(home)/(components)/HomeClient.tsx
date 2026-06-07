@@ -1,13 +1,17 @@
 'use client'
 import { reelsData } from '@/app/utils/data';
 import Image from 'next/image';
-import { useRef, useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function Home() {
   const reels = reelsData.slice(0, 6);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const extendedReels = [...reels, ...reels, ...reels]; // 3x array for infinite scroll
+  const N = reels.length;
+
+  const [currentIndex, setCurrentIndex] = useState(N); // Start at the middle block
+  const [isJumping, setIsJumping] = useState(false);
+
+  const lastScrollTime = useRef(0);
 
   useEffect(() => {
     let accumulated = 0;
@@ -15,51 +19,78 @@ export default function Home() {
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
-      const container = scrollRef.current;
-      if (!container) return;
 
-      accumulated += e.deltaY;
+      const now = Date.now();
+      // 600ms cooldown to ignore the "tail" of trackpad inertial momentum
+      if (now - lastScrollTime.current < 300) {
+        accumulated = 0;
+        return;
+      }
+
+      // Prioritize deltaX for horizontal scrolling, fallback to deltaY
+      accumulated += Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
 
       if (timeout) clearTimeout(timeout);
       timeout = setTimeout(() => {
-        const slideHeight = container.clientHeight;
-        const currentIndex = Math.round(container.scrollTop / slideHeight);
+        // Require a deliberate swipe to trigger a slide change (reduces sensitivity)
+        if (Math.abs(accumulated) < 80 || isJumping) {
+          accumulated = 0;
+          return;
+        }
+
         const direction = accumulated > 0 ? 1 : -1;
-        const nextIndex = Math.min(Math.max(currentIndex + direction, 0), reels.length - 1);
-
-        container.scrollTo({ top: nextIndex * slideHeight, behavior: 'smooth' });
+        setCurrentIndex(prev => prev + direction);
         accumulated = 0;
-      }, 50);
-    };
-
-    const handleScroll = () => {
-      const container = scrollRef.current;
-      if (!container) return;
-      const progress = container.scrollTop / container.clientHeight;
-      setScrollProgress(progress);
-      setActiveIndex(Math.round(progress));
+        lastScrollTime.current = Date.now();
+      }, 30);
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
-    scrollRef.current?.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, [isJumping]);
 
-    return () => {
-      window.removeEventListener('wheel', handleWheel);
-      scrollRef.current?.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+  // Turn isJumping back to false after the invisible CSS jump renders
+  useEffect(() => {
+    if (isJumping) {
+      const frame = requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsJumping(false);
+        });
+      });
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [isJumping]);
+
+  // Derived state for UI
+  const scrollProgress = currentIndex % N;
+  const activeIndex = scrollProgress;
 
   return (
     <section className="w-full h-dvh flex justify-center items-center">
       <div className="min-w-sm w-2/4">
-        <div className="relative aspect-video">
+        {/* Stationary rectangle, hides the rest of the image column */}
+        <div className="relative aspect-video overflow-hidden bg-black">
+          {/* One long column moving up and down */}
           <div
-            ref={scrollRef}
-            className="absolute inset-0 flex flex-col overflow-y-auto snap-y snap-mandatory"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            className="flex flex-col w-full h-full"
+            style={{
+              transform: `translateY(-${currentIndex * 100}%)`,
+              transition: isJumping ? 'none' : 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)',
+              willChange: 'transform'
+            }}
+            onTransitionEnd={() => {
+              // Invisible jump to the center block once transition finishes
+              if (currentIndex >= 2 * N) {
+                setIsJumping(true);
+                setCurrentIndex(currentIndex - N);
+              } else if (currentIndex < N) {
+                setIsJumping(true);
+                setCurrentIndex(currentIndex + N);
+              }
+            }}
           >
-            {reels.map((reel) => (
-              <div key={reel.slug} className="relative w-full h-full snap-center shrink-0">
+            {extendedReels.map((reel, idx) => (
+              <div key={`${reel.slug}-${idx}`} className="relative w-full h-full shrink-0">
                 <Image
                   src={reel.img}
                   alt={reel.desc}
@@ -74,11 +105,9 @@ export default function Home() {
         <div className="flex flex-col w-full py-3 gap-5">
           <div className="flex justify-between items-start h-1">
             {[...Array(50)].map((_, id) => {
-              // Calculate the center point based on the exact scroll progress
               const centerIndex = (scrollProgress / (reels.length - 1)) * 49;
               const distance = Math.abs(id - centerIndex);
 
-              // Determine height and color based on distance from the center point
               let styles = 'h-1 bg-black/30';
               if (distance < 1.5) styles = 'h-3 bg-black';
               else if (distance < 3.5) styles = 'h-2 bg-black/60';
@@ -87,7 +116,8 @@ export default function Home() {
               return (
                 <span
                   key={id}
-                  className={`w-px rounded-full transition-all duration-100 ease-out ${styles}`}
+                  // Increased duration so the wave animates smoothly in sync with the slide transition
+                  className={`w-px rounded-full transition-all duration-500 ease-out ${styles}`}
                 />
               );
             })}
