@@ -56,6 +56,6 @@ body {
   @apply bg-grey-500/10 backdrop-blur-sm
 }
 
-p, span, li {
+p, span {
   @apply tracking-tighter text-grey-500 font-sans
 }
