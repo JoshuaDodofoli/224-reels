@@ -6,6 +6,10 @@ import localFont from 'next/font/local';
 import Nav from "./components/navbar/Nav";
 import SmoothScroll from "./components/SmoothScroll";
 
+const montreal = localFont({
+  src: '../app/fonts/NeueMontreal.woff2',
+  variable: '--montreal'
+})
 
 const clashGrotesk = localFont({
   src: '../app/fonts/ClashGrotesk-Variable.woff2',
@@ -35,10 +39,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inconsolata.variable} ${inter.variable} ${clashGrotesk.variable} antialiased`}
+        className={`${inconsolata.variable} ${inter.variable} ${montreal.variable} ${clashGrotesk.variable} antialiased`}
       >
         <SmoothScroll>
-          <Nav />
           {children}
         </SmoothScroll>
       </body>

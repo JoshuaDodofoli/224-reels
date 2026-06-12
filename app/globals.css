@@ -24,8 +24,9 @@
   /* --color-foreground: var(--foreground); */
   /* --font-sans: var(--font-geist-sans); */
   --font-mono: var(--font-inconsolata);
-  --font-sans: var(--font-inter);
+  /* --font-sans: var(--font-inter); */
   /* --font-sans: var(--clash-grotesk); */
+  --font-sans: var(--montreal);
 
   --text-h1: 4.250rem;
   --text-h2: 2.625rem;
@@ -44,18 +45,6 @@ body {
   font-size: clamp(2.5rem, 6vw, 68px);
 }
 
-.mask-container {
-  overflow: hidden;
-}
-
-.radius {
-  @apply rounded-full
-}
-
-.button-style {
-  @apply bg-grey-500/10 backdrop-blur-sm
-}
-
-p, span {
-  @apply tracking-tighter text-grey-500 font-sans
+p, span , li , a {
+  @apply tracking-tight font-sans
 }
