@@ -120,7 +120,7 @@ export default function Home() {
           >
             {extendedReels.map((reel, idx) => {
               return (
-                <Link key={`${reel.slug}-${idx}`} href={`/works/${reel.slug}`} className="relative w-full flex h-full shrink-0">
+                <Link key={`${reel.slug}-${idx}`} href={''} className="relative w-full flex h-full shrink-0">
                   <Image
                     src={reel.img}
                     alt={reel.desc}
@@ -130,7 +130,7 @@ export default function Home() {
                   />
                   <div
                     className="absolute inset-0 w-full h-full flex items-center justify-center z-10"
-                    style={{ perspective: "800px" }}
+                    // style={{ perspective: "800px" }}
                   >
                     <div
                       className="reel-text text-lg font-sans text-white font-medium flex p-2"
