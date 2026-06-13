@@ -34,7 +34,7 @@ const SlugClient = ({ reel }: SlugProps) => {
                                 className="group inline-flex items-center bg-grey-700 text-white px-2 h-6 overflow-hidden"
                             >
                                 <div className="flex flex-col transition-transform duration-500 ease-in-out ">
-                                    <span className="text-sm h-6 flex items-center">Close</span>
+                                    <span className="text-sm h-6 font-sans flex items-center">Close</span>
                                 </div>
                             </Link>
                         </div>
