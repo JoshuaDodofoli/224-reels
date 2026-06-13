@@ -45,6 +45,6 @@ body {
   font-size: clamp(2.5rem, 6vw, 68px);
 }
 
-p, span , li , a {
+p , li {
   @apply tracking-tight font-sans
 }

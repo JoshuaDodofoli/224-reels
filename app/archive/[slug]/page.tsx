@@ -1,5 +1,6 @@
 import { reelsData } from "@/app/utils/data";
 import { notFound } from "next/navigation";
+import SlugClient from "../(components)/SlugClient";
 
 interface SlugPageProps {
     params: Promise<{ slug: string }>
@@ -14,9 +15,7 @@ const page = async ({ params }: SlugPageProps) => {
     }
 
     return (
-        <div className="">
-            {reel.title}
-        </div>
+        <SlugClient reel={reel} />
     )
 }
 
