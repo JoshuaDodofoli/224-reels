@@ -2,15 +2,16 @@
 import Wrapper from "../Wrapper";
 import { useState } from "react";
 import Menu from "./Menu";
+import { usePathname } from "next/navigation";
 
 const Nav = () => {
 
   const [view, setView] = useState<'' | 'list' | 'grid'>('list');
   const [toggleMenu, setToggleMenu] = useState(false);
+  const pathName = usePathname();
 
   const handleView = (view: '' | 'list' | 'grid') => {
-    setView(view)
-      ;
+    setView(view);
   }
 
   const handleMenu = () => {
@@ -21,19 +22,24 @@ const Nav = () => {
     <nav className="py-4 fixed top-0 left-0 w-full z-50">
       <Wrapper className="w-full flex items-center justify-between">
         <div className="">224-reels</div>
-        <div className="hidden md:block">
-          <ul className="flex items-center gap-3 text-sm px-2 py-1">
-            <li onClick={() => handleView('grid')} className="flex cursor-pointer items-center gap-2">
-              <span className={`${view === 'grid' ? 'h-2 w-2' : 'w-0'} bg-grey-700 inline-block ease-in-out duration-300`} />
-              <p>Grid</p>
-            </li>
-            |
-            <li onClick={() => handleView('list')} className="flex cursor-pointer items-center gap-2">
-              <span className={`${view === 'list' ? 'h-2 w-2' : 'w-0'} bg-grey-700 inline-block ease-in-out duration-300`} />
-              <p>List</p>
-            </li>
-          </ul>
-        </div>
+        {
+          pathName !== '/about' && (
+            <div className="hidden md:block">
+              <ul className="flex items-center gap-3 text-sm px-2 py-1">
+                <li onClick={() => handleView('grid')} className="flex cursor-pointer items-center gap-2">
+                  <span className={`${view === 'grid' ? 'h-2 w-2' : 'w-0'} bg-grey-700 inline-block ease-in-out duration-300`} />
+                  <p>Grid</p>
+                </li>
+                |
+                <li onClick={() => handleView('list')} className="flex cursor-pointer items-center gap-2">
+                  <span className={`${view === 'list' ? 'h-2 w-2' : 'w-0'} bg-grey-700 inline-block ease-in-out duration-300`} />
+                  <p>List</p>
+                </li>
+              </ul>
+            </div>
+          )
+        }
+
 
         <div className="relative">
           <button onClick={handleMenu} className="cursor-pointer relative bg-grey-700 text-white px-2 z-20 h-6 overflow-hidden">
@@ -42,8 +48,6 @@ const Nav = () => {
               <span className="text-lg h-6 flex items-center justify-center">Close</span>
             </div>
           </button>
-
-
 
           <Menu
             handleMenu={handleMenu}
