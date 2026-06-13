@@ -36,8 +36,11 @@ const Nav = () => {
         </div>
 
         <div className="relative">
-          <button onClick={handleMenu} className="cursor-pointer relative bg-grey-700 text-white px-2 z-20">
-            <p className="text-sm">Menu</p>
+          <button onClick={handleMenu} className="cursor-pointer relative bg-grey-700 text-white px-2 z-20 h-6 overflow-hidden">
+            <div className={`flex flex-col transition-transform duration-500 ease-in-out ${toggleMenu ? '-translate-y-1/2' : 'translate-y-0'}`}>
+              <span className="text-lg h-6 flex items-center justify-center">Menu</span>
+              <span className="text-lg h-6 flex items-center justify-center">Close</span>
+            </div>
           </button>
 
 
