@@ -57,22 +57,20 @@ const SlugClient = ({ reel }: SlugProps) => {
                 </Wrapper>
             </div>
 
-            {/* Next project footer */}
-            <div className="sticky bottom-0 z-0 min-h-[80vh] flex flex-col justify-end">
-                <Link href={`/archive/${nextReel.slug}`} className="group block">
-                    <div className="relative w-full h-[75vh] overflow-hidden">
-                        <Image
-                            src={nextReel.img}
-                            alt={nextReel.title}
-                            fill
-                            className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
-                        />
-                    </div>
+            <Wrapper noPadding>
 
-                    <Wrapper>
-                        <div className="py-8 flex items-end justify-between">
-                            <div className="flex flex-col gap-2">
-                                <span className="font-sans text-grey-400 text-xs uppercase tracking-wide">
+                <div className="sticky bottom-0 z-0 min-h-[80vh] flex flex-col justify-end">
+                    <Link href={`/archive/${nextReel.slug}`} className="group block">
+                        <div className="relative w-full h-[80vh] overflow-hidden">
+                            <Image
+                                src={nextReel.img}
+                                alt={nextReel.title}
+                                fill
+                                className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+                            />
+                            <div className="absolute inset-0 bg-grey-700/50" />
+                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center">
+                                <span className="font-sans text-grey-200 text-xs uppercase tracking-widest">
                                     Next — {nextReel.type}
                                 </span>
                                 <h2 className="text-h1 font-sans text-white leading-none tracking-tight transition-opacity duration-300 group-hover:opacity-70">
@@ -80,9 +78,9 @@ const SlugClient = ({ reel }: SlugProps) => {
                                 </h2>
                             </div>
                         </div>
-                    </Wrapper>
-                </Link>
-            </div>
+                    </Link>
+                </div>
+            </Wrapper>
         </div>
     );
 };

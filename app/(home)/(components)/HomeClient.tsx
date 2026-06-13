@@ -112,7 +112,7 @@ export default function Home() {
   return (
     <section className="w-full h-dvh flex justify-center items-center">
       <div className="min-w-sm w-2/4">
-        <div className="relative aspect-video overflow-hidden bg-black">
+        <div className="relative aspect-video overflow-hidden bg-grey-500">
           <div
             ref={containerRef}
             className="flex flex-col w-full h-full"
@@ -133,7 +133,7 @@ export default function Home() {
                     // style={{ perspective: "800px" }}
                   >
                     <div
-                      className="reel-text text-lg font-sans text-white font-medium flex p-2"
+                      className="reel-text text-lg font-sans text-grey-200 font-medium flex p-2"
                       style={{ opacity: 0 }}
                     >
                       {reel.title}
