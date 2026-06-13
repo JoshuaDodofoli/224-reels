@@ -120,7 +120,7 @@ export default function Home() {
           >
             {extendedReels.map((reel, idx) => {
               return (
-                <Link key={`${reel.slug}-${idx}`} href={''} className="relative w-full flex h-full shrink-0">
+                <Link key={`${reel.slug}-${idx}`} href={`/archive/${reel.slug}`} scroll={false} className="relative w-full flex h-full shrink-0">
                   <Image
                     src={reel.img}
                     alt={reel.desc}
