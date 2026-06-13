@@ -1,7 +1,8 @@
 'use client'
 
 import Image from "next/image";
-import { Reel } from "@/app/utils/data";
+import Link from "next/link";
+import { Reel, reelsData } from "@/app/utils/data";
 import Wrapper from "@/app/components/Wrapper";
 
 interface SlugProps {
@@ -9,6 +10,9 @@ interface SlugProps {
 }
 
 const SlugClient = ({ reel }: SlugProps) => {
+    const currentIndex = reelsData.findIndex((r) => r.slug === reel.slug);
+    const nextReel = reelsData[(currentIndex + 1) % reelsData.length];
+
     return (
         <div className="bg-grey-700">
 
@@ -53,11 +57,31 @@ const SlugClient = ({ reel }: SlugProps) => {
                 </Wrapper>
             </div>
 
+            {/* Next project footer */}
+            <div className="sticky bottom-0 z-0 min-h-[80vh] flex flex-col justify-end">
+                <Link href={`/archive/${nextReel.slug}`} className="group block">
+                    <div className="relative w-full h-[75vh] overflow-hidden">
+                        <Image
+                            src={nextReel.img}
+                            alt={nextReel.title}
+                            fill
+                            className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+                        />
+                    </div>
 
-            <div className="sticky bottom-0 z-0 min-h-[60vh]">
-                <Wrapper>
-                    <h2 className="text-4xl text-white">THis is kinda like the footer</h2>
-                </Wrapper>
+                    <Wrapper>
+                        <div className="py-8 flex items-end justify-between">
+                            <div className="flex flex-col gap-2">
+                                <span className="font-sans text-grey-400 text-xs uppercase tracking-wide">
+                                    Next — {nextReel.type}
+                                </span>
+                                <h2 className="text-h1 font-sans text-white leading-none tracking-tight transition-opacity duration-300 group-hover:opacity-70">
+                                    {nextReel.title}
+                                </h2>
+                            </div>
+                        </div>
+                    </Wrapper>
+                </Link>
             </div>
         </div>
     );
