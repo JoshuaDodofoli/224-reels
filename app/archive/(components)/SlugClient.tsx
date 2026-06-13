@@ -27,6 +27,17 @@ const SlugClient = ({ reel }: SlugProps) => {
                             priority
                             className="object-cover object-center"
                         />
+                        {/* Back button */}
+                        <div className="absolute top-4 right-4 z-10">
+                            <Link
+                                href="/"
+                                className="group inline-flex items-center bg-grey-700 text-white px-2 h-6 overflow-hidden"
+                            >
+                                <div className="flex flex-col transition-transform duration-500 ease-in-out ">
+                                    <span className="text-sm h-6 flex items-center">Close</span>
+                                </div>
+                            </Link>
+                        </div>
                     </div>
                 </Wrapper>
 
