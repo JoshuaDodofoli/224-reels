@@ -33,7 +33,7 @@ const SlugClient = ({ reel }: SlugProps) => {
                                 href="/"
                                 className="group inline-flex items-center bg-grey-700 text-white px-2 h-6 overflow-hidden"
                             >
-                                <div className="flex flex-col transition-transform duration-500 ease-in-out ">
+                                <div className="flex flex-col transition-transform duration-500 ease-in-out">
                                     <span className="text-sm h-6 font-sans flex items-center">Close</span>
                                 </div>
                             </Link>
@@ -68,32 +68,31 @@ const SlugClient = ({ reel }: SlugProps) => {
                 </Wrapper>
             </div>
 
-            <Wrapper noPadding>
-
-                <div className="sticky bottom-0 z-0 min-h-[80vh] flex flex-col justify-end">
-                    <Link href={`/archive/${nextReel.slug}`} className="group block">
-                        <div className="relative w-full h-[80vh] overflow-hidden">
-                            <Image
-                                src={nextReel.img}
-                                alt={nextReel.title}
-                                fill
-                                className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
-                            />
-                            <div className="absolute inset-0 bg-grey-700/50" />
-                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center">
-                                <span className="font-sans text-grey-200 text-xs uppercase tracking-widest">
-                                    Next — {nextReel.type}
-                                </span>
-                                <h2 className="text-h1 font-sans text-white leading-none tracking-tight transition-opacity duration-300 group-hover:opacity-70">
-                                    {nextReel.title}
-                                </h2>
-                            </div>
+            <div className="sticky bottom-0 z-0 h-[80vh] flex flex-col justify-end">
+                <Link href={`/archive/${nextReel.slug}`} className="group block w-full">
+                    <div className="relative w-full h-[80vh] overflow-hidden">
+                        <Image
+                            src={nextReel.img}
+                            alt={nextReel.title}
+                            fill
+                            className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-grey-700/50" />
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center">
+                            <span className="font-sans text-grey-200 text-xs uppercase tracking-widest">
+                                Next — {nextReel.type}
+                            </span>
+                            <h2 className="text-h1 font-sans text-white leading-none tracking-tight transition-opacity duration-300 group-hover:opacity-70">
+                                {nextReel.title}
+                            </h2>
                         </div>
-                    </Link>
-                </div>
-            </Wrapper>
+                    </div>
+                </Link>
+            </div>
+
         </div>
     );
 };
 
 export default SlugClient;
+
