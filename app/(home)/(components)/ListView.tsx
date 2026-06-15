@@ -63,10 +63,10 @@ export default function ListView() {
 
       <div className="max-w-2xl mx-auto px-4 w-full">
         <div className="flex items-center justify-between border-b border-grey-300 pb-3 mb-1">
-          <span className="font-mono text-xs text-grey-400 uppercase tracking-widest">Index</span>
-          <span className="font-mono text-xs text-grey-400 uppercase tracking-widest flex-1 pl-8">Title</span>
-          {/* <span className="font-mono text-xs text-grey-400 uppercase tracking-widest">Type</span> */}
-          <span className="font-mono text-xs text-grey-400 uppercase tracking-widest  text-right">Date</span>
+          <span className="font-sans text-xs text-grey-400 uppercase tracking-widest">Index</span>
+          <span className="font-sans text-xs text-grey-400 uppercase tracking-widest flex-1 pl-8">Title</span>
+          {/* <span className="font-sans text-xs text-grey-400 uppercase tracking-widest">Type</span> */}
+          <span className="font-sans text-xs text-grey-400 uppercase tracking-widest  text-right">Date</span>
         </div>
 
         <ul>
@@ -79,14 +79,14 @@ export default function ListView() {
                 onMouseEnter={() => setHoveredIndex(idx)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >
-                <span className="relative z-10 font-mono text-xs text-grey-400 w-8 shrink-0 group-hover:text-white transition-colors duration-300">
+                <span className="relative z-10 font-sans text-xs text-grey-400 w-8 shrink-0 group-hover:text-white transition-colors duration-300">
                   0{idx + 1}
                 </span>
                 <span className="relative z-10 font-sans text-grey-500 text-sm md:text-base flex-1 group-hover:translate-x-2 group-hover:text-white transition-all duration-500 ease-out">
                   {reel.title}
                 </span>
 
-                <span className="relative z-10 font-mono text-xs text-grey-400 w-28 text-right shrink-0 group-hover:text-white group-hover:-translate-x-2 transition-all duration-500 ease-in-out">
+                <span className="relative z-10 font-sans text-xs text-grey-400 w-28 text-right shrink-0 group-hover:text-white group-hover:-translate-x-2 transition-all duration-500 ease-in-out">
                   {reel.date}
                 </span>
                 {/* <span className="font-sans text-grey-400 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 shrink-0">

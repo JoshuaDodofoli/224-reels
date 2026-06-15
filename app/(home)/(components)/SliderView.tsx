@@ -182,7 +182,7 @@ export default function SliderView() {
 
         <div className="flex items-center justify-between w-full pt-4 pb-1">
           {/* Fraction counter */}
-          <div className="flex items-baseline gap-1 font-mono text-xs">
+          <div className="flex items-baseline gap-1 font-sans text-xs">
             <div className="overflow-hidden leading-none">
               <span ref={counterRef} className="inline-block">
                 0{displayIndex + 1}
@@ -194,7 +194,7 @@ export default function SliderView() {
 
           {/* Date */}
           <div className="overflow-hidden leading-none">
-            <span ref={dateRef} className="font-mono text-xs text-grey-400 inline-block">
+            <span ref={dateRef} className="font-sans text-xs text-grey-400 inline-block">
               {reels[displayIndex].date}
             </span>
           </div>
