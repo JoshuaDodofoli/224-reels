@@ -44,7 +44,7 @@ export default function ListView() {
   }, []);
 
   return (
-    <section className="w-full mx-auto min-h-dvh pt-20 pb-16 relative">
+    <section className="w-full mx-auto min-h-dvh pt-28">
       <div
         ref={previewRef}
         className="pointer-events-none fixed top-0 left-0 z-40 w-48 aspect-video overflow-hidden transition-opacity duration-300"
@@ -61,7 +61,7 @@ export default function ListView() {
         )}
       </div>
 
-      <div className="max-w-380 mx-auto px-4">
+      <div className="max-w-2xl mx-auto px-4 w-full">
         <div className="flex items-center justify-between border-b border-grey-300 pb-3 mb-1">
           <span className="font-mono text-xs text-grey-400 uppercase tracking-widest">Index</span>
           <span className="font-mono text-xs text-grey-400 uppercase tracking-widest flex-1 pl-8">Title</span>
@@ -71,30 +71,28 @@ export default function ListView() {
 
         <ul>
           {reels.map((reel, idx) => (
-            <li key={reel.slug} className="border-b border-grey-300 last:border-none">
+            <li key={reel.slug} className="border-b border-grey-300">
               <Link
                 href={`/archive/${reel.slug}`}
                 ref={(el) => { rowRefs.current[idx] = el; }}
-                className="group flex items-center justify-between py-4 gap-4 opacity-0"
+                className="group relative flex items-center justify-between py-4 gap-4 opacity-0"
                 onMouseEnter={() => setHoveredIndex(idx)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >
-                <span className="font-mono text-xs text-grey-400 w-8 shrink-0">
+                <span className="relative z-10 font-mono text-xs text-grey-400 w-8 shrink-0 group-hover:text-white transition-colors duration-300">
                   0{idx + 1}
                 </span>
-                <span className="font-sans text-grey-500 text-sm md:text-base flex-1 group-hover:translate-x-1 transition-transform duration-300 ease-out">
+                <span className="relative z-10 font-sans text-grey-500 text-sm md:text-base flex-1 group-hover:translate-x-2 group-hover:text-white transition-all duration-500 ease-out">
                   {reel.title}
                 </span>
 
-                {/* <span className="font-mono text-xs text-grey-400 uppercase tracking-widest border border-grey-300 px-2 py-0.5 shrink-0">
-                  {reel.type}
-                </span> */}
-                <span className="font-mono text-xs text-grey-400 w-28 text-right shrink-0">
+                <span className="relative z-10 font-mono text-xs text-grey-400 w-28 text-right shrink-0 group-hover:text-white group-hover:-translate-x-2 transition-all duration-500 ease-in-out">
                   {reel.date}
                 </span>
                 {/* <span className="font-sans text-grey-400 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 shrink-0">
                   →
                 </span> */}
+                <div className="absolute -inset-x-2 inset-y-0 bg-grey-500 origin-bottom scale-y-0 transition-transform duration-300 ease-out group-hover:scale-y-100 z-0 pointer-events-none" />
               </Link>
             </li>
           ))}

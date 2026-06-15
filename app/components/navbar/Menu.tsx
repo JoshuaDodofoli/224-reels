@@ -16,7 +16,7 @@ const Menu = ({ handleMenu, toggleMenu, view, handleView }: MenuProps) => {
     useMenu({ menuRef, toggleMenu })
 
     return (
-        <div ref={menuRef} className="absolute top-0 right-0 bg-grey-700 text-grey-200 z-10 w-0 h-0 overflow-hidden">
+        <div ref={menuRef} className="absolute top-0 right-0 bg-grey-500 text-grey-200 z-10 w-0 h-0 overflow-hidden">
             <div className="p-2 mt-5">
                 <ul className="flex flex-col text-sm w-full mb-4">
                     <li onClick={handleMenu} className="cursor-pointer w-full relative pb-2 mb-2">
