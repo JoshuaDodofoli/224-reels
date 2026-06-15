@@ -3,15 +3,16 @@ import Wrapper from "../Wrapper";
 import { useState } from "react";
 import Menu from "./Menu";
 import { usePathname } from "next/navigation";
+import { useView } from "@/app/utils/context/ViewContext";
 
 const Nav = () => {
 
-  const [view, setView] = useState<'' | 'list' | 'grid'>('list');
+  const { view, setView } = useView();
   const [toggleMenu, setToggleMenu] = useState(false);
   const pathName = usePathname();
 
-  const handleView = (view: '' | 'list' | 'grid') => {
-    setView(view);
+  const handleView = (v: 'slider' | 'list') => {
+    setView(v);
   }
 
   const handleMenu = () => {
@@ -26,9 +27,9 @@ const Nav = () => {
           pathName !== '/about' && (
             <div className="hidden md:block">
               <ul className="flex items-center gap-3 text-sm px-2 py-1">
-                <li onClick={() => handleView('grid')} className="flex cursor-pointer items-center gap-2">
-                  <span className={`${view === 'grid' ? 'h-2 w-2' : 'w-0'} bg-grey-700 inline-block ease-in-out duration-300`} />
-                  <p>Grid</p>
+                <li onClick={() => handleView('slider')} className="flex cursor-pointer items-center gap-2">
+                  <span className={`${view === 'slider' ? 'h-2 w-2' : 'w-0'} bg-grey-700 inline-block ease-in-out duration-300`} />
+                  <p>Slider</p>
                 </li>
                 |
                 <li onClick={() => handleView('list')} className="flex cursor-pointer items-center gap-2">

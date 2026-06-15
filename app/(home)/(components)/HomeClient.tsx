@@ -1,15 +1,20 @@
 'use client'
 import { reelsData } from '@/app/utils/data';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { Observer } from "gsap/Observer";
 import Link from 'next/link';
+import { useView } from '@/app/utils/context/ViewContext';
+import ListView from './ListView';
 
 gsap.registerPlugin(useGSAP, Observer);
 
-export default function Home() {
+/* ─────────────────────────────────────────────
+   Slider view (GSAP infinite scroll)
+───────────────────────────────────────────── */
+function SliderView() {
   const reels = reelsData.slice(0, 8);
   const extendedReels = [...reels, ...reels, ...reels];
   const N = reels.length;
@@ -128,10 +133,7 @@ export default function Home() {
                     sizes="50vw"
                     className="object-center object-cover"
                   />
-                  <div
-                    className="absolute inset-0 w-full h-full flex items-center justify-center z-10"
-                    // style={{ perspective: "800px" }}
-                  >
+                  <div className="absolute inset-0 w-full h-full flex items-center justify-center z-10">
                     <div
                       className="reel-text text-lg font-sans text-grey-200 font-medium flex p-2"
                       style={{ opacity: 0 }}
@@ -179,5 +181,18 @@ export default function Home() {
         </div>
       </div>
     </section>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   Root export — switches between the two views
+───────────────────────────────────────────── */
+export default function Home() {
+  const { view } = useView();
+
+  return (
+    <div key={view} className="transition-opacity duration-300">
+      {view === 'slider' ? <SliderView /> : <ListView />}
+    </div>
   );
 }

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Reel, reelsData } from "@/app/utils/data";
 import Wrapper from "@/app/components/Wrapper";
+import { useEffect } from "react";
 
 interface SlugProps {
     reel: Reel;
@@ -12,6 +13,10 @@ interface SlugProps {
 const SlugClient = ({ reel }: SlugProps) => {
     const currentIndex = reelsData.findIndex((r) => r.slug === reel.slug);
     const nextReel = reelsData[(currentIndex + 1) % reelsData.length];
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [reel.slug]);
 
     return (
         <div className="bg-grey-700">
