@@ -64,7 +64,7 @@ const SlugClient = ({ reel }: SlugProps) => {
                             <h1 className="text-h2 lg:text-h1 font-sans leading-none tracking-tight">
                                 {reel.title}
                             </h1>
-                            <p className="text-grey-400 text-sm font-sans leading-relaxed">
+                            <p className="text-grey-400 text-body font-sans leading-relaxed">
                                 {reel.desc}
                             </p>
                         </div>

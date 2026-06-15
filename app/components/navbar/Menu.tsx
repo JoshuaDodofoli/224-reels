@@ -21,14 +21,14 @@ const Menu = ({ handleMenu, toggleMenu, view, handleView }: MenuProps) => {
                 <ul className="flex flex-col text-sm w-full mb-4">
                     <li onClick={handleMenu} className="cursor-pointer w-full relative pb-2 mb-2">
                         <Link href={'/'}>
-                        <span className="menu-text text-lg inline-block opacity-0">Archive</span>
-                        <span className="menu-line absolute bottom-0 left-0 w-0 h-px bg-grey-300 inline-block" />
+                        <span className="menu-text text-sm inline-block opacity-0">Archive</span>
+                        <span className="menu-line absolute bottom-0 left-0 w-0 h-[0.5px] bg-grey-300 inline-block" />
                         </Link>
                     </li>
                     <li onClick={handleMenu} className="cursor-pointer w-full relative pb-2 mb-2">
                         <Link href={'/about'}>
-                        <span className="menu-text text-lg inline-block opacity-0">About</span>
-                        <span className="menu-line absolute bottom-0 left-0 w-0 h-px bg-grey-300 inline-block" />
+                        <span className="menu-text text-sm inline-block opacity-0">About</span>
+                        <span className="menu-line absolute bottom-0 left-0 w-0 h-[0.5px] bg-grey-300 inline-block" />
                         </Link>
                     </li>
                 </ul>
