@@ -62,16 +62,16 @@ export default function ListView() {
       </div>
 
       <div className="max-w-380 mx-auto px-4">
-        <div className="flex items-center justify-between border-b border-black/10 pb-3 mb-1">
+        <div className="flex items-center justify-between border-b border-grey-300 pb-3 mb-1">
           <span className="font-mono text-xs text-grey-400 uppercase tracking-widest">Index</span>
           <span className="font-mono text-xs text-grey-400 uppercase tracking-widest flex-1 pl-8">Title</span>
-          <span className="font-mono text-xs text-grey-400 uppercase tracking-widest hidden md:block">Type</span>
-          <span className="font-mono text-xs text-grey-400 uppercase tracking-widest w-28 text-right hidden md:block">Date</span>
+          {/* <span className="font-mono text-xs text-grey-400 uppercase tracking-widest">Type</span> */}
+          <span className="font-mono text-xs text-grey-400 uppercase tracking-widest  text-right">Date</span>
         </div>
 
         <ul>
           {reels.map((reel, idx) => (
-            <li key={reel.slug} className="border-b border-black/10 last:border-none">
+            <li key={reel.slug} className="border-b border-grey-300 last:border-none">
               <Link
                 href={`/archive/${reel.slug}`}
                 ref={(el) => { rowRefs.current[idx] = el; }}
@@ -86,15 +86,15 @@ export default function ListView() {
                   {reel.title}
                 </span>
 
-                <span className="hidden md:inline-flex font-mono text-xs text-grey-400 uppercase tracking-widest border border-grey-300 px-2 py-0.5 shrink-0">
+                {/* <span className="font-mono text-xs text-grey-400 uppercase tracking-widest border border-grey-300 px-2 py-0.5 shrink-0">
                   {reel.type}
-                </span>
-                <span className="hidden md:block font-mono text-xs text-grey-400 w-28 text-right shrink-0">
+                </span> */}
+                <span className="font-mono text-xs text-grey-400 w-28 text-right shrink-0">
                   {reel.date}
                 </span>
-                <span className="font-sans text-grey-400 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 shrink-0">
+                {/* <span className="font-sans text-grey-400 text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 shrink-0">
                   →
-                </span>
+                </span> */}
               </Link>
             </li>
           ))}

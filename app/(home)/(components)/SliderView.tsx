@@ -2,7 +2,7 @@
 
 import { reelsData } from '@/app/utils/data';
 import Image from 'next/image';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { Observer } from 'gsap/Observer';
@@ -19,6 +19,10 @@ export default function SliderView() {
   const currentIndexRef = useRef(N);
   const containerRef = useRef<HTMLDivElement>(null);
   const isAnimating = useRef(false);
+  const counterRef = useRef<HTMLSpanElement>(null);
+  const dateRef = useRef<HTMLSpanElement>(null);
+  const directionRef = useRef<number>(1);
+  const [displayIndex, setDisplayIndex] = useState(0);
 
   useGSAP(() => {
     gsap.set(containerRef.current, { yPercent: -currentIndexRef.current * 100 });
@@ -58,6 +62,7 @@ export default function SliderView() {
 
     const handleScroll = (direction: number) => {
       if (isAnimating.current) return;
+      directionRef.current = direction;
       isAnimating.current = true;
 
       const nextIndex = currentIndexRef.current + direction;
@@ -110,6 +115,35 @@ export default function SliderView() {
   const scrollProgress = currentIndex % N;
   const activeIndex = scrollProgress;
 
+  // Direction-aware staged ticker animation
+  useEffect(() => {
+    if (!counterRef.current || !dateRef.current) return;
+
+    const target = scrollProgress;
+    const dir    = directionRef.current;
+    const exitY  = dir > 0 ? '-120%' : '120%';
+    const enterY = dir > 0 ?  '120%' : '-120%';
+
+    const tl = gsap.timeline();
+
+    // 1. Exit — slide current text out
+    tl.to([counterRef.current, dateRef.current], {
+      y: exitY,
+      duration: 0.2,
+      ease: 'power2.in',
+      stagger: 0.025,
+    });
+
+    // 2. While off-screen: update content, reposition for entry
+    tl.call(() => setDisplayIndex(target));
+    tl.set([counterRef.current, dateRef.current], { y: enterY });
+
+    // 3. Enter — slide new text in
+    tl.to(counterRef.current, { y: '0%', duration: 0.45, ease: 'power3.out' });
+    tl.to(dateRef.current,    { y: '0%', duration: 0.45, ease: 'power3.out' }, '<0.04');
+
+  }, [scrollProgress]);
+
   return (
     <section className="w-full h-dvh flex justify-center items-center">
       <div className="min-w-sm w-2/4">
@@ -146,38 +180,24 @@ export default function SliderView() {
           </div>
         </div>
 
-        <div className="flex flex-col w-full py-3 gap-5">
-          <div className="flex justify-between items-start h-1">
-            {[...Array(50)].map((_, id) => {
-              const centerIndex = (scrollProgress / (reels.length - 1)) * 49;
-              const distance = Math.abs(id - centerIndex);
-
-              let styles = 'h-1 bg-black/30';
-              if (distance < 1.5) styles = 'h-3 bg-black/70';
-              else if (distance < 3.5) styles = 'h-2 bg-black/60';
-              else if (distance < 6.5) styles = 'h-1 bg-black/40';
-
-              return (
-                <span
-                  key={id}
-                  className={`w-px rounded-full transition-all duration-500 ease-out ${styles}`}
-                />
-              );
-            })}
+        <div className="flex items-center justify-between w-full pt-4 pb-1">
+          {/* Fraction counter */}
+          <div className="flex items-baseline gap-1 font-mono text-xs">
+            <div className="overflow-hidden leading-none">
+              <span ref={counterRef} className="inline-block">
+                0{displayIndex + 1}
+              </span>
+            </div>
+            <span className="text-grey-400">/</span>
+            <span className="text-grey-400">0{N}</span>
           </div>
 
-          <ul className="flex justify-between">
-            {reels.map((_, idx) => (
-              <li
-                key={idx}
-                className={`font-mono font-medium text-xs md:text-sm transition-opacity duration-300 ${
-                  idx === activeIndex ? 'opacity-70' : 'opacity-30'
-                }`}
-              >
-                0{idx + 1}
-              </li>
-            ))}
-          </ul>
+          {/* Date */}
+          <div className="overflow-hidden leading-none">
+            <span ref={dateRef} className="font-mono text-xs text-grey-400 inline-block">
+              {reels[displayIndex].date}
+            </span>
+          </div>
         </div>
       </div>
     </section>
