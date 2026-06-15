@@ -44,7 +44,7 @@ export default function ListView() {
   }, []);
 
   return (
-    <section className="w-5xl mx-auto min-h-dvh pt-20 pb-16 relative">
+    <section className="w-full mx-auto min-h-dvh pt-20 pb-16 relative">
       <div
         ref={previewRef}
         className="pointer-events-none fixed top-0 left-0 z-40 w-48 aspect-video overflow-hidden transition-opacity duration-300"

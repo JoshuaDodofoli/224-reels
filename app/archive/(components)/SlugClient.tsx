@@ -61,7 +61,7 @@ const SlugClient = ({ reel }: SlugProps) => {
                         <hr className="border-grey-400" />
 
                         <div className="grid md:grid-cols-2 gap-10 items-start">
-                            <h1 className="text-h1 font-sans leading-none tracking-tight">
+                            <h1 className="text-h2 lg:text-h1 font-sans leading-none tracking-tight">
                                 {reel.title}
                             </h1>
                             <p className="text-grey-400 text-sm font-sans leading-relaxed">
