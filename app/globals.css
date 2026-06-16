@@ -48,3 +48,91 @@ body {
 p , li {
   @apply tracking-tight font-sans
 }
+
+
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.intro-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background-color: var(--grey-700, #0D0D0D);
+  will-change: transform;
+}
+
+.intro-panel--top {
+  top: 0;
+  transform-origin: top center;
+}
+
+.intro-panel--bottom {
+  bottom: 0;
+  transform-origin: bottom center;
+}
+
+.intro-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.intro-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  overflow: hidden;
+  /* opacity: 0; */
+}
+
+.intro-char-wrapper {
+  display: inline-block;
+  overflow: hidden;
+  line-height: 1;
+}
+
+.intro-char {
+  display: inline-block;
+  font-family: var(--clash-grotesk, sans-serif);
+  font-size: clamp(3.5rem, 10vw, 9rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--grey-200);
+  line-height: 1;
+  will-change: transform;
+}
+
+.intro-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  width: clamp(16rem, 40vw, 42rem);
+}
+
+.intro-line {
+  flex: 1;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.25);
+  transform-origin: left center;
+  will-change: transform;
+}
+
+.intro-counter {
+  font-family: var(--font-inconsolata, monospace);
+  font-size: clamp(0.75rem, 1.5vw, 1rem);
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.1em;
+  min-width: 3ch;
+  text-align: right;
+}
