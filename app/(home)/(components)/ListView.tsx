@@ -42,7 +42,7 @@ export default function ListView() {
     window.addEventListener('mousemove', onMove);
     return () => window.removeEventListener('mousemove', onMove);
   }, []);
- 
+
   return (
     <section className="w-full mx-auto min-h-dvh pt-28">
       <div
