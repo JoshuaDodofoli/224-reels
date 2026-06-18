@@ -57,7 +57,7 @@ export default function RootLayout({
           <TransitionProvider>
             <SmoothScroll>
               <IntroProvider>
-                {/* <IntroAnimation /> */}
+                <IntroAnimation />
                 {/* {modal} */}
                 {children}
               </IntroProvider>

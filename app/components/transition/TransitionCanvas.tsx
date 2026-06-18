@@ -121,7 +121,7 @@ const Scene = ({ registerTrigger }: { registerTrigger: (fn: (href: string) => vo
       gsap.to(materialRef.current.uniforms.uProgress, {
         value: 1.0,
         duration: 1.5,
-        ease: 'power1.inOut',
+        ease: 'power3.inOut',
         onComplete: () => {
           // Change route once screen is covered
           router.push(href);
@@ -130,8 +130,8 @@ const Scene = ({ registerTrigger }: { registerTrigger: (fn: (href: string) => vo
           setTimeout(() => {
             gsap.to(materialRef.current.uniforms.uProgress, {
               value: 2.0,
-              duration: 1.5,
-              ease: 'power1.inOut',
+              duration: 2.2,
+              ease: 'power1.out',
               onComplete: () => {
                  // Reset progress silently back to 0
                  materialRef.current.uniforms.uProgress.value = 0.0;

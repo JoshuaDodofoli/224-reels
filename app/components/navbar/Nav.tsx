@@ -1,15 +1,34 @@
 'use client'
 import Wrapper from "../Wrapper";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Menu from "./Menu";
 import { usePathname } from "next/navigation";
 import { useView } from "@/app/utils/context/ViewContext";
+import { useIntro } from "@/app/utils/context/IntroContext";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
 
 const Nav = () => {
 
   const { view, setView } = useView();
+  const { isComplete } = useIntro();
+  const navRef = useRef<HTMLElement>(null);
   const [toggleMenu, setToggleMenu] = useState(false);
   const pathName = usePathname();
+
+  useGSAP(() => {
+    if (!isComplete) {
+      gsap.set(navRef.current, { y: -30, opacity: 0 });
+      return;
+    }
+    gsap.to(navRef.current, {
+      y: 0,
+      opacity: 1,
+      duration: 0.8,
+      ease: "power3.out",
+      delay: 0.2
+    });
+  }, { scope: navRef, dependencies: [isComplete] });
 
   const handleView = (v: 'slider' | 'list') => {
     setView(v);
@@ -20,7 +39,7 @@ const Nav = () => {
   }
 
   return (
-    <nav className="py-4 fixed top-0 left-0 w-full z-50">
+    <nav ref={navRef} className="py-4 fixed top-0 left-0 w-full z-50">
       <Wrapper className="w-full flex items-center justify-between">
         <div className=""></div>
         {

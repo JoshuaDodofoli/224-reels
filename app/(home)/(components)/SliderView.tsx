@@ -9,10 +9,12 @@ import { useGSAP } from '@gsap/react';
 import { Observer } from 'gsap/Observer';
 import { SplitText } from 'gsap/SplitText';
 import { TransitionLink } from '@/app/components/transition/TransitionLink';
+import { useIntro } from '@/app/utils/context/IntroContext';
 
 gsap.registerPlugin(useGSAP, Observer, SplitText);
 
 export default function SliderView() {
+  const { isComplete } = useIntro();
   const reels = reelsData.slice(0, 8);
   const extendedReels = [...reels, ...reels, ...reels];
   const N = reels.length;
@@ -60,9 +62,12 @@ export default function SliderView() {
       });
     };
 
-    animateTexts(currentIndexRef.current % N, 0.2);
+    if (isComplete) {
+      animateTexts(currentIndexRef.current % N, 0.2);
+    }
 
     const handleScroll = (direction: number) => {
+      if (!isComplete) return;
       if (isAnimating.current) return;
       directionRef.current = direction;
       isAnimating.current = true;
@@ -115,7 +120,7 @@ export default function SliderView() {
       obs.kill();
       split.revert();
     };
-  }, { scope: containerRef });
+  }, { scope: containerRef, dependencies: [isComplete] });
 
   const scrollProgress = currentIndex % N;
   const activeIndex = scrollProgress;
@@ -123,6 +128,7 @@ export default function SliderView() {
   // Direction-aware staged ticker animation
   useEffect(() => {
     if (!counterRef.current || !dateRef.current) return;
+    if (!isComplete) return;
 
     const target = scrollProgress;
     const dir = directionRef.current;

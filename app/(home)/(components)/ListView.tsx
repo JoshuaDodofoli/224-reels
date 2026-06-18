@@ -6,9 +6,11 @@ import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { TransitionLink } from '@/app/components/transition/TransitionLink';
+import { useIntro } from '@/app/utils/context/IntroContext';
 
 export default function ListView() {
   const reels = reelsData.slice(0, 8);
+  const { isComplete } = useIntro();
   const rowRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const previewRef = useRef<HTMLDivElement>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -21,6 +23,8 @@ export default function ListView() {
   }, [hoveredIndex, reels]);
 
   useGSAP(() => {
+    if (!isComplete) return;
+
     gsap.fromTo(
       rowRefs.current,
       { y: 24, opacity: 0 },
@@ -33,7 +37,7 @@ export default function ListView() {
         delay: 0.1,
       }
     );
-  }, []);
+  }, { dependencies: [isComplete] });
 
   useGSAP(() => {
     const preview = previewRef.current;
