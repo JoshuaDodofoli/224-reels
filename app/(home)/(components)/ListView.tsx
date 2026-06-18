@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import Link from 'next/link';
+import { TransitionLink } from '@/app/components/transition/TransitionLink';
 
 export default function ListView() {
   const reels = reelsData.slice(0, 8);
@@ -102,9 +102,9 @@ export default function ListView() {
         <ul>
           {reels.map((reel, idx) => (
             <li key={reel.slug} className="border-b border-grey-300">
-              <Link
+              <TransitionLink
                 href={`/archive/${reel.slug}`}
-                ref={(el) => { rowRefs.current[idx] = el; }}
+                ref={(el: any) => { rowRefs.current[idx] = el; }}
                 className="group relative flex items-center justify-between py-4 gap-4 opacity-0"
                 onMouseEnter={() => setHoveredIndex(idx)}
                 onMouseLeave={() => setHoveredIndex(null)}
@@ -123,7 +123,7 @@ export default function ListView() {
                   →
                 </span> */}
                 <div className="absolute -inset-x-2 inset-y-0 bg-grey-500 origin-bottom scale-y-0 transition-transform duration-300 ease-out group-hover:scale-y-100 z-0 pointer-events-none" />
-              </Link>
+              </TransitionLink>
             </li>
           ))}
         </ul>

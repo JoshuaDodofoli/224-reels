@@ -8,7 +8,7 @@ import { useGSAP } from '@gsap/react';
 
 import { Observer } from 'gsap/Observer';
 import { SplitText } from 'gsap/SplitText';
-import Link from 'next/link';
+import { TransitionLink } from '@/app/components/transition/TransitionLink';
 
 gsap.registerPlugin(useGSAP, Observer, SplitText);
 
@@ -159,10 +159,9 @@ export default function SliderView() {
             style={{ willChange: 'transform' }}
           >
             {extendedReels.map((reel, idx) => (
-              <Link
+              <TransitionLink
                 key={`${reel.slug}-${idx}`}
                 href={`/archive/${reel.slug}`}
-                scroll={false}
                 className="relative w-full flex h-full shrink-0"
               >
                 <Image
@@ -179,7 +178,7 @@ export default function SliderView() {
                     {reel.title}
                   </div>
                 </div>
-              </Link>
+              </TransitionLink>
             ))}
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { useMenu } from "@/app/utils/hooks/useMenu";
-import Link from "next/link";
+import { TransitionLink } from "@/app/components/transition/TransitionLink";
 import { useRef } from "react";
 
 interface MenuProps {
@@ -20,16 +20,16 @@ const Menu = ({ handleMenu, toggleMenu, view, handleView }: MenuProps) => {
             <div className="p-2 mt-5">
                 <ul className="flex flex-col text-sm w-full mb-4">
                     <li onClick={handleMenu} className="cursor-pointer w-full relative pb-2 mb-2">
-                        <Link href={'/'}>
+                        <TransitionLink href={'/'}>
                         <span className="menu-text text-sm inline-block opacity-0">Archive</span>
                         <span className="menu-line absolute bottom-0 left-0 w-0 h-[0.5px] bg-grey-300 inline-block" />
-                        </Link>
+                        </TransitionLink>
                     </li>
                     <li onClick={handleMenu} className="cursor-pointer w-full relative pb-2 mb-2">
-                        <Link href={'/about'}>
+                        <TransitionLink href={'/about'}>
                         <span className="menu-text text-sm inline-block opacity-0">About</span>
                         <span className="menu-line absolute bottom-0 left-0 w-0 h-[0.5px] bg-grey-300 inline-block" />
-                        </Link>
+                        </TransitionLink>
                     </li>
                 </ul>
 

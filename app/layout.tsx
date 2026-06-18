@@ -8,6 +8,8 @@ import SmoothScroll from "./components/SmoothScroll";
 import { ViewProvider } from "./utils/context/ViewContext";
 import IntroAnimation from "./components/IntroAnimation";
 import { IntroProvider } from "./utils/context/IntroContext";
+import { TransitionProvider } from "./components/transition/TransitionContext";
+import { ClientTransitionCanvas } from "./components/transition/ClientTransitionCanvas";
 
 const montreal = localFont({
   src: '../app/fonts/NeueMontreal.woff2',
@@ -52,13 +54,16 @@ export default function RootLayout({
         className={`${inconsolata.variable} ${inter.variable} ${montreal.variable} ${clashGrotesk.variable} ${oswald.variable} antialiased`}
       >
         <ViewProvider>
-          <SmoothScroll>
-            <IntroProvider>
-              {/* <IntroAnimation /> */}
-              {/* {modal} */}
-              {children}
-            </IntroProvider>
-          </SmoothScroll>
+          <TransitionProvider>
+            <SmoothScroll>
+              <IntroProvider>
+                {/* <IntroAnimation /> */}
+                {/* {modal} */}
+                {children}
+              </IntroProvider>
+            </SmoothScroll>
+            <ClientTransitionCanvas />
+          </TransitionProvider>
         </ViewProvider>
       </body>
     </html>

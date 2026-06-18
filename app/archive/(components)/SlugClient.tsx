@@ -1,7 +1,7 @@
 'use client'
 
 import Image from "next/image";
-import Link from "next/link";
+import { TransitionLink } from "@/app/components/transition/TransitionLink";
 import { Reel, reelsData } from "@/app/utils/data";
 import Wrapper from "@/app/components/Wrapper";
 import { useEffect } from "react";
@@ -34,14 +34,14 @@ const SlugClient = ({ reel }: SlugProps) => {
                         />
                         {/* Back button */}
                         <div className="absolute top-4 right-4 z-10">
-                            <Link
+                            <TransitionLink
                                 href="/"
                                 className="group inline-flex items-center bg-grey-700 text-white px-2 h-6 overflow-hidden"
                             >
                                 <div className="flex flex-col transition-transform duration-500 ease-in-out">
                                     <span className="text-sm h-6 font-sans flex items-center">Close</span>
                                 </div>
-                            </Link>
+                            </TransitionLink>
                         </div>
                     </div>
                 </Wrapper>
@@ -74,7 +74,7 @@ const SlugClient = ({ reel }: SlugProps) => {
             </div>
 
             <div className="sticky bottom-0 z-0 h-[80vh] flex flex-col justify-end">
-                <Link href={`/archive/${nextReel.slug}`} className="group block w-full">
+                <TransitionLink href={`/archive/${nextReel.slug}`} className="group block w-full">
                     <div className="relative w-full h-[80vh] overflow-hidden">
                         <Image
                             src={nextReel.img}
@@ -92,7 +92,7 @@ const SlugClient = ({ reel }: SlugProps) => {
                             </h2>
                         </div>
                     </div>
-                </Link>
+                </TransitionLink>
             </div>
 
         </div>
