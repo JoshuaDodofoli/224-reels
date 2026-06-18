@@ -12,6 +12,13 @@ export default function ListView() {
   const rowRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const previewRef = useRef<HTMLDivElement>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [activeImage, setActiveImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (hoveredIndex !== null) {
+      setActiveImage(reels[hoveredIndex].img);
+    }
+  }, [hoveredIndex, reels]);
 
   useGSAP(() => {
     gsap.fromTo(
@@ -27,6 +34,29 @@ export default function ListView() {
       }
     );
   }, []);
+
+  useGSAP(() => {
+    const preview = previewRef.current;
+    if (!preview) return;
+
+    if (hoveredIndex !== null) {
+      gsap.to(preview, {
+        scale: 1,
+        opacity: 1,
+        duration: 0.4,
+        ease: 'back.out(1.4)',
+        overwrite: 'auto',
+      });
+    } else {
+      gsap.to(preview, {
+        scale: 0.5,
+        opacity: 0,
+        duration: 0.3,
+        ease: 'power2.in',
+        overwrite: 'auto',
+      });
+    }
+  }, [hoveredIndex]);
 
   useEffect(() => {
     const preview = previewRef.current;
@@ -47,13 +77,13 @@ export default function ListView() {
     <section className="w-full mx-auto min-h-dvh pt-28">
       <div
         ref={previewRef}
-        className="pointer-events-none fixed top-0 left-0 z-40 w-48 aspect-video overflow-hidden transition-opacity duration-300"
-        style={{ opacity: hoveredIndex !== null ? 1 : 0 }}
+        className="pointer-events-none fixed top-0 left-0 z-40 w-48 aspect-video overflow-hidden"
+        style={{ opacity: 0, transform: 'scale(0.5)' }}
       >
-        {hoveredIndex !== null && (
+        {activeImage && (
           <Image
-            src={reels[hoveredIndex].img}
-            alt={reels[hoveredIndex].title}
+            src={activeImage}
+            alt="Preview"
             fill
             sizes="192px"
             className="object-cover object-center"
