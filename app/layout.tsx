@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { Inter, Inconsolata } from "next/font/google";
+import { Inter, Inconsolata, Oswald } from "next/font/google";
 import LocalFont from "next/font/local";
 import "./globals.css";
 import localFont from 'next/font/local';
 import Nav from "./components/navbar/Nav";
 import SmoothScroll from "./components/SmoothScroll";
 import { ViewProvider } from "./utils/context/ViewContext";
+import IntroAnimation from "./components/IntroAnimation";
+import { IntroProvider } from "./utils/context/IntroContext";
 
 const montreal = localFont({
   src: '../app/fonts/NeueMontreal.woff2',
@@ -19,6 +21,11 @@ const clashGrotesk = localFont({
 
 const inconsolata = Inconsolata({
   variable: "--font-inconsolata",
+  subsets: ["latin"],
+});
+
+const oswald = Oswald({
+  variable: "--font-oswald",
   subsets: ["latin"],
 });
 
@@ -42,12 +49,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inconsolata.variable} ${inter.variable} ${montreal.variable} ${clashGrotesk.variable} antialiased`}
+        className={`${inconsolata.variable} ${inter.variable} ${montreal.variable} ${clashGrotesk.variable} ${oswald.variable} antialiased`}
       >
         <ViewProvider>
           <SmoothScroll>
-            {/* {modal} */}
-            {children}
+            <IntroProvider>
+              {/* <IntroAnimation /> */}
+              {/* {modal} */}
+              {children}
+            </IntroProvider>
           </SmoothScroll>
         </ViewProvider>
       </body>

@@ -5,10 +5,12 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+
 import { Observer } from 'gsap/Observer';
+import { SplitText } from 'gsap/SplitText';
 import Link from 'next/link';
 
-gsap.registerPlugin(useGSAP, Observer);
+gsap.registerPlugin(useGSAP, Observer, SplitText);
 
 export default function SliderView() {
   const reels = reelsData.slice(0, 8);
@@ -28,30 +30,30 @@ export default function SliderView() {
     gsap.set(containerRef.current, { yPercent: -currentIndexRef.current * 100 });
 
     const texts = gsap.utils.toArray('.reel-text');
+    const split = new SplitText(texts, { type: 'chars', charsClass: 'char' });
 
-    gsap.set(texts, { y: 20, opacity: 0, rotateX: 90, transformOrigin: 'center center' });
+    gsap.set(split.chars, { yPercent: 100 });
 
-    const animateTexts = (activeIdx: number, inDelay: number = 0.6) => {
+    const animateTexts = (activeIdx: number, inDelay: number = 0.2) => {
       texts.forEach((el: any, idx: number) => {
         const isActive = idx % N === activeIdx;
+        const chars = el.querySelectorAll('.char');
 
         if (isActive) {
-          gsap.to(el, {
-            y: 0,
-            opacity: 1,
-            rotateX: 0,
-            duration: 0.6,
-            ease: 'power3.out',
-            delay: inDelay,
+          gsap.to(chars, {
+            yPercent: 0,
+            duration: 1.3,
+            ease: 'expo.inOut',
+            stagger: 0.01,
+            // delay: inDelay,
             overwrite: true,
           });
         } else {
-          gsap.to(el, {
-            y: 20,
-            opacity: 0,
-            rotateX: 90,
+          gsap.to(chars, {
+            yPercent: 100,
             duration: 0.4,
             ease: 'power2.in',
+            stagger: 0.01,
             overwrite: true,
           });
         }
@@ -109,7 +111,10 @@ export default function SliderView() {
       onRight: () => handleScroll(1),
     });
 
-    return () => obs.kill();
+    return () => {
+      obs.kill();
+      split.revert();
+    };
   }, { scope: containerRef });
 
   const scrollProgress = currentIndex % N;
@@ -120,9 +125,9 @@ export default function SliderView() {
     if (!counterRef.current || !dateRef.current) return;
 
     const target = scrollProgress;
-    const dir    = directionRef.current;
-    const exitY  = dir > 0 ? '-120%' : '120%';
-    const enterY = dir > 0 ?  '120%' : '-120%';
+    const dir = directionRef.current;
+    const exitY = dir > 0 ? '-120%' : '120%';
+    const enterY = dir > 0 ? '120%' : '-120%';
 
     const tl = gsap.timeline();
 
@@ -140,7 +145,7 @@ export default function SliderView() {
 
     // 3. Enter — slide new text in
     tl.to(counterRef.current, { y: '0%', duration: 0.45, ease: 'power3.out' });
-    tl.to(dateRef.current,    { y: '0%', duration: 0.45, ease: 'power3.out' }, '<0.04');
+    tl.to(dateRef.current, { y: '0%', duration: 0.45, ease: 'power3.out' }, '<0.04');
 
   }, [scrollProgress]);
 
@@ -169,8 +174,7 @@ export default function SliderView() {
                 />
                 <div className="absolute inset-0 w-full h-full flex items-center justify-center z-10">
                   <div
-                    className="reel-text text-lg font-sans text-grey-200 font-medium flex p-2"
-                    style={{ opacity: 0 }}
+                    className="reel-text text-h3 md:text-h2 font-semibold uppercase font-sans text-grey-200 block text-center overflow-hidden"
                   >
                     {reel.title}
                   </div>

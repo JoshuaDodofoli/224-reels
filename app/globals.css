@@ -27,6 +27,7 @@
   /* --font-sans: var(--font-inter); */
   /* --font-sans: var(--clash-grotesk); */
   --font-sans: var(--montreal);
+  --font-title: var(--font-oswald);
 
   --text-h1: 4.250rem;
   --text-h2: 2.625rem;
