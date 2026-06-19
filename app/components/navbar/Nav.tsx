@@ -44,7 +44,7 @@ const Nav = () => {
         <div className=""></div>
         {
           pathName !== '/about' && (
-            <div className="hidden md:block">
+            <div className="absolute left-1/2 -translate-x-1/2">
               <ul className="flex items-center gap-3 text-sm px-2 py-1">
                 <li onClick={() => handleView('slider')} className="flex cursor-pointer items-center gap-2">
                   <span className={`${view === 'slider' ? 'h-2 w-2' : 'w-0'} bg-grey-700 inline-block ease-in-out duration-300`} />
@@ -72,8 +72,6 @@ const Nav = () => {
           <Menu
             handleMenu={handleMenu}
             toggleMenu={toggleMenu}
-            view={view}
-            handleView={handleView}
           />
         </div>
       </Wrapper>

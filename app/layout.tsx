@@ -10,6 +10,7 @@ import IntroAnimation from "./components/IntroAnimation";
 import { IntroProvider } from "./utils/context/IntroContext";
 import { TransitionProvider } from "./components/transition/TransitionContext";
 import { ClientTransitionCanvas } from "./components/transition/ClientTransitionCanvas";
+import { TransitionLoader } from "./components/transition/TransitionLoader";
 
 const montreal = localFont({
   src: '../app/fonts/NeueMontreal.woff2',
@@ -63,6 +64,7 @@ export default function RootLayout({
               </IntroProvider>
             </SmoothScroll>
             <ClientTransitionCanvas />
+            <TransitionLoader />
           </TransitionProvider>
         </ViewProvider>
       </body>

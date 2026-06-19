@@ -5,9 +5,19 @@ import { shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 import { extend } from '@react-three/fiber';
 import { useRef, useEffect } from 'react';
-import { useTransition } from './TransitionContext';
-import { useRouter } from 'next/navigation';
+import { useTransition, TransitionPhase } from './TransitionContext';
+import { useRouter, usePathname } from 'next/navigation';
 import gsap from 'gsap';
+
+const normalizePath = (href: string) => {
+  try {
+    return new URL(href, window.location.origin).pathname;
+  } catch {
+    return href.split('#')[0].split('?')[0];
+  }
+};
+
+const PAGE_READY_TIMEOUT_MS = 8000;
 
 const NoiseMaterial = shaderMaterial(
   {
@@ -99,10 +109,33 @@ const NoiseMaterial = shaderMaterial(
 
 extend({ NoiseMaterial });
 
-const Scene = ({ registerTrigger }: { registerTrigger: (fn: (href: string) => void) => void }) => {
+const Scene = ({
+  registerTrigger,
+  registerIntroExit,
+  setPhase,
+}: {
+  registerTrigger: (fn: (href: string) => void) => void;
+  registerIntroExit: (fn: (onCovered?: () => void) => void) => void;
+  setPhase: (phase: TransitionPhase) => void;
+}) => {
   const materialRef = useRef<any>(null);
   const meshRef = useRef<any>(null);
   const router = useRouter();
+  const pathname = usePathname();
+  const pathnameRef = useRef(pathname);
+  const pendingPathRef = useRef<string | null>(null);
+  const onPageReadyRef = useRef<(() => void) | null>(null);
+
+  // When the route commits, fire any pending "ready" callback
+  useEffect(() => {
+    pathnameRef.current = pathname;
+    if (pendingPathRef.current && pendingPathRef.current === pathname) {
+      pendingPathRef.current = null;
+      const cb = onPageReadyRef.current;
+      onPageReadyRef.current = null;
+      cb?.();
+    }
+  }, [pathname]);
 
   useFrame((state) => {
     if (materialRef.current) {
@@ -111,39 +144,90 @@ const Scene = ({ registerTrigger }: { registerTrigger: (fn: (href: string) => vo
   });
 
   useEffect(() => {
-    registerTrigger((href: string) => {
-      if (!materialRef.current || !meshRef.current) return;
-      
-      // Make mesh visible right before animation starts
+    registerIntroExit((onCovered?: () => void) => {
+      if (!materialRef.current || !meshRef.current) {
+        onCovered?.();
+        return;
+      }
+
+      // Start fully covered (matches grey-200 background of intro section)
       meshRef.current.visible = true;
-      
-      // Intro animation (fill screen)
+      materialRef.current.uniforms.uProgress.value = 1.0;
+
+      // Let the intro section unmount now — canvas is already covering
+      onCovered?.();
+
+      // Dissolve away to reveal the site, same easing as the page transition outro
       gsap.to(materialRef.current.uniforms.uProgress, {
-        value: 1.0,
-        duration: 1.5,
-        ease: 'power3.inOut',
+        value: 2.0,
+        duration: 3.0,
+        ease: 'power1.out',
         onComplete: () => {
-          // Change route once screen is covered
-          router.push(href);
-          
-          // Slight delay to let Next.js render the new DOM
-          setTimeout(() => {
-            gsap.to(materialRef.current.uniforms.uProgress, {
-              value: 2.0,
-              duration: 2.2,
-              ease: 'power1.out',
-              onComplete: () => {
-                 // Reset progress silently back to 0
-                 materialRef.current.uniforms.uProgress.value = 0.0;
-                 // Hide mesh entirely so it doesn't render noise in background
-                 meshRef.current.visible = false;
-              }
-            });
-          }, 400);
-        }
+          materialRef.current.uniforms.uProgress.value = 0.0;
+          meshRef.current.visible = false;
+        },
       });
     });
-  }, [registerTrigger, router]);
+
+    registerTrigger((href: string) => {
+      if (!materialRef.current || !meshRef.current) return;
+
+      // Make mesh visible right before animation starts
+      meshRef.current.visible = true;
+      setPhase('covering');
+
+      // Cover phase (fill screen)
+      gsap.to(materialRef.current.uniforms.uProgress, {
+        value: 1.0,
+        duration: 2.0,
+        ease: 'power3.inOut',
+        onComplete: () => {
+          const startOutro = () => {
+            setPhase('revealing');
+            // Wait two frames so the newly committed route can paint before we dissolve
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                if (!materialRef.current || !meshRef.current) return;
+                gsap.to(materialRef.current.uniforms.uProgress, {
+                  value: 2.0,
+                  duration: 3.0,
+                  ease: 'power1.out',
+                  onComplete: () => {
+                    materialRef.current.uniforms.uProgress.value = 0.0;
+                    meshRef.current.visible = false;
+                    setPhase('idle');
+                  },
+                });
+              });
+            });
+          };
+
+          const targetPath = normalizePath(href);
+          router.push(href);
+
+          if (targetPath === pathnameRef.current) {
+            // Same route — nothing to wait for
+            startOutro();
+            return;
+          }
+
+          // Hold the cover until the new route actually commits
+          setPhase('waiting');
+          pendingPathRef.current = targetPath;
+          onPageReadyRef.current = startOutro;
+
+          // Safety net — never wait forever
+          setTimeout(() => {
+            if (onPageReadyRef.current === startOutro) {
+              pendingPathRef.current = null;
+              onPageReadyRef.current = null;
+              startOutro();
+            }
+          }, PAGE_READY_TIMEOUT_MS);
+        },
+      });
+    });
+  }, [registerTrigger, registerIntroExit, router, setPhase]);
 
   return (
     <mesh ref={meshRef} frustumCulled={false} visible={false}>
@@ -155,12 +239,16 @@ const Scene = ({ registerTrigger }: { registerTrigger: (fn: (href: string) => vo
 };
 
 export const TransitionCanvas = () => {
-  const { registerTrigger } = useTransition();
+  const { registerTrigger, registerIntroExit, setPhase } = useTransition();
 
   return (
     <div className="fixed inset-0 z-50 pointer-events-none">
       <Canvas style={{ pointerEvents: 'none' }}>
-        <Scene registerTrigger={registerTrigger} />
+        <Scene
+          registerTrigger={registerTrigger}
+          registerIntroExit={registerIntroExit}
+          setPhase={setPhase}
+        />
       </Canvas>
     </div>
   );

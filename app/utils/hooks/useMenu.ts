@@ -11,7 +11,7 @@ export const useMenu = ({menuRef,toggleMenu}: UseMenuProps) => {
     useGSAP(() => {
         if (toggleMenu) {
             const tl = gsap.timeline();
-            
+
             tl.fromTo(menuRef.current, {
                 width: 0,
                 height: 0,
@@ -21,7 +21,7 @@ export const useMenu = ({menuRef,toggleMenu}: UseMenuProps) => {
                 duration: 0.6,
                 ease: "power3.inOut"
             })
-            
+
             tl.fromTo('.menu-text', {
                 y: 10,
                 opacity: 0
@@ -32,23 +32,23 @@ export const useMenu = ({menuRef,toggleMenu}: UseMenuProps) => {
                 stagger: 0.1,
                 ease: "power2.out"
             }, "-=0.3")
-            
+
             tl.to('.menu-line', {
                 width: "100%",
                 duration: 0.8,
                 stagger: 0.1,
                 ease: "power3.inOut"
             }, "-=0.3")
-            
+
             tl.to('.menu-views', {
                 opacity: 1,
                 duration: 0.6,
                 ease: "power2.inOut"
             }, "-=0.3")
-            
+
         } else {
             const tl = gsap.timeline();
-            
+
             tl.to(['.menu-text', '.menu-views'], {
                 opacity: 0,
                 duration: 0.3
@@ -58,7 +58,7 @@ export const useMenu = ({menuRef,toggleMenu}: UseMenuProps) => {
                 duration: 0.4,
                 stagger: 0.1,
             }, "<")
-            
+
             tl.to(menuRef.current, {
                 width: 0,
                 height: 0,

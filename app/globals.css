@@ -49,3 +49,12 @@ body {
 p , li {
   @apply tracking-tight font-sans
 }
+
+@keyframes transitionLoaderSweep {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
+.transition-loader-sweep {
+  animation: transitionLoaderSweep 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}

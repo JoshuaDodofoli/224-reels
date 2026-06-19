@@ -1,17 +1,17 @@
 import { useMenu } from "@/app/utils/hooks/useMenu";
 import { TransitionLink } from "@/app/components/transition/TransitionLink";
 import { useRef } from "react";
+import { usePathname } from "next/navigation";
 
 interface MenuProps {
     handleMenu: () => void;
     toggleMenu: boolean;
-    view: 'slider' | 'list';
-    handleView: (view: 'slider' | 'list') => void;
 }
 
-const Menu = ({ handleMenu, toggleMenu, view, handleView }: MenuProps) => {
+const Menu = ({ handleMenu, toggleMenu }: MenuProps) => {
 
     const menuRef = useRef<HTMLDivElement>(null);
+    const pathName = usePathname();
 
     useMenu({ menuRef, toggleMenu })
 
@@ -32,20 +32,6 @@ const Menu = ({ handleMenu, toggleMenu, view, handleView }: MenuProps) => {
                         </TransitionLink>
                     </li>
                 </ul>
-
-                <div className="menu-views block md:hidden opacity-0">
-                    <ul className="flex items-center gap-3 text-sm px-2 py-1">
-                        <li onClick={() => {handleView('slider'); handleMenu()}} className="flex cursor-pointer items-center gap-2">
-                            <span className={`${view === 'slider' ? 'h-2 w-2' : 'w-0'} bg-grey-300 inline-block ease-in-out duration-300`} />
-                            <p>Slider</p>
-                        </li>
-                        |
-                        <li onClick={() => {handleView('list'); handleMenu()}} className="flex cursor-pointer items-center gap-2">
-                            <span className={`${view === 'list' ? 'h-2 w-2' : 'w-0'} bg-grey-300 inline-block ease-in-out duration-300`} />
-                            <p>List</p>
-                        </li>
-                    </ul>
-                </div>
             </div>
         </div>
     )
