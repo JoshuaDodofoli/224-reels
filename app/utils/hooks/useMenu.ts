@@ -38,7 +38,7 @@ export const useMenu = ({menuRef,toggleMenu}: UseMenuProps) => {
                 duration: 0.8,
                 stagger: 0.1,
                 ease: "power3.inOut"
-            }, "-=0.3")
+            }, "<=0.3")
 
             tl.to('.menu-views', {
                 opacity: 1,

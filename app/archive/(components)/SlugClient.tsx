@@ -64,7 +64,7 @@ const SlugClient = ({ reel }: SlugProps) => {
                             <h1 className="text-h2 lg:text-h1 font-sans leading-none tracking-tight">
                                 {reel.title}
                             </h1>
-                            <p className="text-grey-400 text-body font-sans leading-relaxed">
+                            <p className="text-grey-450 text-body font-sans leading-relaxed">
                                 {reel.desc}
                             </p>
                         </div>
@@ -87,7 +87,7 @@ const SlugClient = ({ reel }: SlugProps) => {
                             <span className="font-sans text-grey-200 text-xs uppercase tracking-widest">
                                 Next — {nextReel.type}
                             </span>
-                            <h2 className="text-h1 font-sans text-white leading-none tracking-tight transition-opacity duration-300 group-hover:opacity-70">
+                            <h2 className="text-h1 font-sans text-grey-200 leading-none tracking-tight transition-opacity duration-300 group-hover:opacity-70">
                                 {nextReel.title}
                             </h2>
                         </div>

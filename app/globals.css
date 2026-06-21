@@ -7,6 +7,7 @@
   /* --foreground: #171717; */
   --grey-300: #DADADA;
   --grey-400: #8A8A8A;
+  --grey-450: #555555;
   --grey-500: #1F1F1F;
   --grey-700: #0D0D0D;
 
@@ -19,6 +20,7 @@
   --color-grey-200: var(--grey-200);
   --color-grey-300: var(--grey-300);
   --color-grey-400: var(--grey-400);
+  --color-grey-450: var(--grey-450);
   --color-grey-500: var(--grey-500);
   --color-grey-700: var(--grey-700);
   /* --color-foreground: var(--foreground); */
