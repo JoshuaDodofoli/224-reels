@@ -4,7 +4,8 @@ import Image from "next/image";
 import { TransitionLink } from "@/app/components/transition/TransitionLink";
 import { Reel, reelsData } from "@/app/utils/data";
 import Wrapper from "@/app/components/Wrapper";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useScrollToNext } from "@/app/utils/hooks/useScrollToNext";
 
 interface SlugProps {
     reel: Reel;
@@ -13,6 +14,19 @@ interface SlugProps {
 const SlugClient = ({ reel }: SlugProps) => {
     const currentIndex = reelsData.findIndex((r) => r.slug === reel.slug);
     const nextReel = reelsData[(currentIndex + 1) % reelsData.length];
+
+    const leftBarRef = useRef<HTMLDivElement>(null);
+    const rightBarRef = useRef<HTMLDivElement>(null);
+    const mobileBarRef = useRef<HTMLDivElement>(null);
+
+    useScrollToNext(`/archive/${nextReel.slug}`, {
+        onProgress: (p) => {
+            const t = `scaleX(${p})`;
+            if (leftBarRef.current) leftBarRef.current.style.transform = t;
+            if (rightBarRef.current) rightBarRef.current.style.transform = t;
+            if (mobileBarRef.current) mobileBarRef.current.style.transform = t;
+        },
+    });
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -73,6 +87,8 @@ const SlugClient = ({ reel }: SlugProps) => {
                 </Wrapper>
             </div>
 
+            {/* footer */}
+
             <div className="sticky bottom-0 z-0 h-[80vh] flex flex-col justify-end">
                 <TransitionLink href={`/archive/${nextReel.slug}`} className="group block w-full">
                     <div className="relative w-full h-[80vh] overflow-hidden">
@@ -87,9 +103,44 @@ const SlugClient = ({ reel }: SlugProps) => {
                             <span className="font-sans text-grey-200 text-xs uppercase tracking-widest">
                                 Next — {nextReel.type}
                             </span>
-                            <h2 className="text-h1 font-sans text-grey-200 leading-none tracking-tight transition-opacity duration-300 group-hover:opacity-70">
-                                {nextReel.title}
-                            </h2>
+                            {/* desktop: bars flank the title */}
+                            <div className="hidden md:flex items-center gap-6 py-12">
+                                <div className="h-px w-40 overflow-hidden bg-grey-200/30">
+                                    <div
+                                        ref={leftBarRef}
+                                        className="h-full w-full bg-grey-200"
+                                        style={{ transform: "scaleX(0)", transformOrigin: "right" }}
+                                    />
+                                </div>
+                                <h2 className="text-h1 font-sans text-grey-200 leading-none tracking-tight transition-opacity duration-300 group-hover:opacity-70">
+                                    {nextReel.title}
+                                </h2>
+                                <div className="h-px w-40 overflow-hidden bg-grey-200/30">
+                                    <div
+                                        ref={rightBarRef}
+                                        className="h-full w-full bg-grey-200"
+                                        style={{ transform: "scaleX(0)", transformOrigin: "left" }}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* mobile: single bar below the title */}
+                            <div className="flex md:hidden flex-col items-center gap-16 py-6">
+                                <h2 className="text-h1 font-sans text-grey-200 leading-none tracking-tight transition-opacity duration-300 group-hover:opacity-70">
+                                    {nextReel.title}
+                                </h2>
+                                <div className="h-px w-40 overflow-hidden bg-grey-200/30">
+                                    <div
+                                        ref={mobileBarRef}
+                                        className="h-full w-full bg-grey-200"
+                                        style={{ transform: "scaleX(0)", transformOrigin: "left" }}
+                                    />
+                                </div>
+                            </div>
+
+                            <span className="text-caption font-sans text-grey-200/70 uppercase tracking-widest">
+                                keep scrolling
+                            </span>
                         </div>
                     </div>
                 </TransitionLink>
