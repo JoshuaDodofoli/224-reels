@@ -156,8 +156,8 @@ export default function SliderView() {
   }, [scrollProgress]);
 
   return (
-    <section className="w-full h-dvh flex justify-center items-center">
-      <div className="min-w-sm w-2/4">
+    <section className="w-full h-dvh flex justify-center items-center px-4 md:px-0">
+      <div className="w-full md:w-1/2">
         <div className="relative aspect-video overflow-hidden bg-grey-500">
           <div
             ref={containerRef}
@@ -174,7 +174,7 @@ export default function SliderView() {
                   src={reel.img}
                   alt={reel.desc}
                   fill
-                  sizes="50vw"
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-center object-cover"
                 />
                 <div className="absolute inset-0 w-full h-full flex items-center justify-center z-10">

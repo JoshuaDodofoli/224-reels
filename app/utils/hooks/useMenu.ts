@@ -40,16 +40,11 @@ export const useMenu = ({menuRef,toggleMenu}: UseMenuProps) => {
                 ease: "power3.inOut"
             }, "<=0.3")
 
-            tl.to('.menu-views', {
-                opacity: 1,
-                duration: 0.6,
-                ease: "power2.inOut"
-            }, "-=0.3")
 
         } else {
             const tl = gsap.timeline();
 
-            tl.to(['.menu-text', '.menu-views'], {
+            tl.to('.menu-text', {
                 opacity: 0,
                 duration: 0.3
             })

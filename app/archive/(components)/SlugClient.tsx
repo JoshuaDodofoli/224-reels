@@ -101,7 +101,8 @@ const SlugClient = ({ reel }: SlugProps) => {
                         <div className="absolute inset-0 bg-grey-700/50" />
                         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center">
                             <span className="font-sans text-grey-200 text-xs uppercase tracking-widest">
-                                Next — {nextReel.type}
+                                {/* Next — {nextReel.type} */}
+                                Next
                             </span>
                             {/* desktop: bars flank the title */}
                             <div className="hidden md:flex items-center gap-6 py-12">
@@ -138,7 +139,7 @@ const SlugClient = ({ reel }: SlugProps) => {
                                 </div>
                             </div>
 
-                            <span className="text-caption font-sans text-grey-200/70 uppercase tracking-widest">
+                            <span className="text-caption font-sans text-grey-200 uppercase tracking-widest">
                                 keep scrolling
                             </span>
                         </div>
