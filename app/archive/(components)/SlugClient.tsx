@@ -133,7 +133,7 @@ const SlugClient = ({ reel }: SlugProps) => {
                                     <div
                                         ref={mobileBarRef}
                                         className="h-full w-full bg-grey-200"
-                                        style={{ transform: "scaleX(0)", transformOrigin: "left" }}
+                                        style={{ transform: "scaleX(0)", transformOrigin: "center" }}
                                     />
                                 </div>
                             </div>

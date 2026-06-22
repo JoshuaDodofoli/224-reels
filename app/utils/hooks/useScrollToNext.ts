@@ -12,10 +12,15 @@ interface Options {
 }
 
 /**
- * When the page is pinned at the bottom, accumulates extra wheel/touch scroll
- * delta into a 0→1 progress value and navigates to `href` (via the page
- * transition) once it crosses the threshold. Progress recedes if the user
- * pauses or scrolls back up. Holds no React state — `onProgress` drives the UI.
+ * When the page is pinned at the bottom, accumulates extra downward wheel/touch
+ * scroll delta into a 0→1 progress value and navigates to `href` (via the page
+ * transition) once it crosses the threshold.
+ *
+ * Progress is strictly monotonic: it never decays and never resets while the
+ * user stays on the page. This matters on mobile, where reaching the bottom
+ * collapses the browser toolbar and shifts the page — anything that reset on
+ * "left the bottom" would wipe the progress and feel broken. Upward scroll is
+ * ignored rather than subtracted. Holds no React state — `onProgress` drives the UI.
  */
 export function useScrollToNext(href: string, { onProgress, threshold = 700 }: Options) {
     const { transitionTo } = useTransition();
@@ -23,32 +28,29 @@ export function useScrollToNext(href: string, { onProgress, threshold = 700 }: O
     const accRef = useRef(0);
     const atBottomRef = useRef(false);
     const navigatedRef = useRef(false);
-    const lastInputRef = useRef(0);
 
     // Keep latest callback without re-subscribing listeners.
     const onProgressRef = useRef(onProgress);
-    onProgressRef.current = onProgress;
+    useEffect(() => {
+        onProgressRef.current = onProgress;
+    });
 
-    // Track whether Lenis is pinned at the bottom of the page.
+    // Track whether Lenis is pinned at the bottom of the page. Note: we only
+    // read this flag — we never reset progress when it goes false.
     useLenis((lenis) => {
-        const atBottom = lenis.limit > 0 && lenis.scroll >= lenis.limit - 2;
-        atBottomRef.current = atBottom;
-        if (!atBottom && !navigatedRef.current && accRef.current !== 0) {
-            accRef.current = 0;
-            onProgressRef.current(0);
-        }
+        atBottomRef.current = lenis.limit > 0 && lenis.scroll >= lenis.limit - 2;
     });
 
     useEffect(() => {
-        // Reset for the current page.
+        // Reset only for a fresh page (href change / mount), never mid-interaction.
         navigatedRef.current = false;
         accRef.current = 0;
         onProgressRef.current(0);
 
         const add = (delta: number) => {
-            if (navigatedRef.current || !atBottomRef.current) return;
-            lastInputRef.current = performance.now();
-            accRef.current = Math.max(0, Math.min(threshold, accRef.current + delta));
+            // Only count downward overscroll while pinned at the bottom.
+            if (navigatedRef.current || !atBottomRef.current || delta <= 0) return;
+            accRef.current = Math.min(threshold, accRef.current + delta);
             const p = accRef.current / threshold;
             onProgressRef.current(p);
             if (p >= 1) {
@@ -74,22 +76,10 @@ export function useScrollToNext(href: string, { onProgress, threshold = 700 }: O
         window.addEventListener('touchstart', onTouchStart, { passive: true });
         window.addEventListener('touchmove', onTouchMove, { passive: true });
 
-        // Ease progress back down when input pauses short of the threshold.
-        let raf = requestAnimationFrame(function decay() {
-            raf = requestAnimationFrame(decay);
-            if (navigatedRef.current) return;
-            if (accRef.current > 0 && performance.now() - lastInputRef.current > 120) {
-                accRef.current *= 0.92;
-                if (accRef.current < 1) accRef.current = 0;
-                onProgressRef.current(accRef.current / threshold);
-            }
-        });
-
         return () => {
             window.removeEventListener('wheel', onWheel);
             window.removeEventListener('touchstart', onTouchStart);
             window.removeEventListener('touchmove', onTouchMove);
-            cancelAnimationFrame(raf);
         };
     }, [href, threshold, transitionTo]);
 }
