@@ -102,7 +102,7 @@ const SlugClient = ({ reel }: SlugProps) => {
                         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center">
                             <span className="font-sans text-grey-200 text-xs uppercase tracking-widest">
                                 {/* Next — {nextReel.type} */}
-                                Next
+                                Next up
                             </span>
                             {/* desktop: bars flank the title */}
                             <div className="hidden md:flex items-center gap-6 py-12">
