@@ -81,7 +81,7 @@ export default function ListView() {
     <section className="w-full mx-auto min-h-dvh pt-28">
       <div
         ref={previewRef}
-        className="pointer-events-none fixed top-0 left-0 z-40 w-48 aspect-video overflow-hidden"
+        className="hidden lg:block pointer-events-none fixed top-0 left-0 z-40 w-48 aspect-video overflow-hidden"
         style={{ opacity: 0, transform: 'scale(0.5)' }}
       >
         {activeImage && (
