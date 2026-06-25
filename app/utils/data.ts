@@ -1,11 +1,7 @@
 export const navLinks = [
   {
-    title: "Home",
+    title: "Archive",
     path: "/",
-  },
-  {
-    title: "Works",
-    path: "/works",
   },
   {
     title: "Info",
@@ -20,6 +16,8 @@ export interface Reel {
   desc: string;
   type: string;
   date: string;
+  /** Mux playback ID — optional until videos are wired up. */
+  video?: string;
 }
 
 export const reelsData: Reel[] = [
