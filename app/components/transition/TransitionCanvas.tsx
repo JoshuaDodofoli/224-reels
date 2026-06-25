@@ -2,7 +2,7 @@
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import { shaderMaterial } from "@react-three/drei";
-import * as THREE from "three";
+
 import { extend } from "@react-three/fiber";
 import { useRef, useEffect } from "react";
 import { useTransition, TransitionPhase } from "./TransitionContext";
@@ -118,8 +118,11 @@ const Scene = ({
     registerIntroExit: (fn: (onCovered?: () => void) => void) => void;
     setPhase: (phase: TransitionPhase) => void;
 }) => {
-    const materialRef = useRef<any>(null);
-    const meshRef = useRef<any>(null);
+    const materialRef = useRef<{
+        uTime: number;
+        uniforms: { uProgress: { value: number } };
+    } | null>(null);
+    const meshRef = useRef<{ visible: boolean } | null>(null);
     const router = useRouter();
     const pathname = usePathname();
     const pathnameRef = useRef(pathname);
@@ -236,7 +239,7 @@ const Scene = ({
     return (
         <mesh ref={meshRef} frustumCulled={false} visible={false}>
             <planeGeometry args={[2, 2]} />
-            {/* @ts-ignore */}
+            {/* @ts-expect-error — custom shaderMaterial registered via extend */}
             <noiseMaterial
                 ref={materialRef}
                 transparent
