@@ -14,7 +14,7 @@ interface UseAboutAnimeProps {
   captionRef: RefObject<HTMLElement | null>;
 }
 
-export const useAboutAnime = ({
+export const  useAboutAnime = ({
   sectionRef,
   labelRef,
   paraRef,

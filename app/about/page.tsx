@@ -27,12 +27,12 @@ const AboutPage = () => {
           <div className="w-full max-w-md mx-auto flex flex-col items-center text-center gap-10 text-grey-500">
 
             {/* Label */}
-            <span
+            {/* <span
               ref={labelRef}
               className="font-mono text-xs text-grey-400 uppercase tracking-widest opacity-0"
             >
               224 Reels — Personal Archive
-            </span>
+            </span> */}
 
             {/* Paragraph */}
             <div>
