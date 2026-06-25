@@ -1,6 +1,6 @@
 "use client";
 
-import { reelsData } from "@/app/utils/data";
+import { Reel } from "@/app/utils/data";
 import Image from "next/image";
 import { useEffect, useRef, useState, type RefCallback } from "react";
 import gsap from "gsap";
@@ -8,8 +8,11 @@ import { useGSAP } from "@gsap/react";
 import { TransitionLink } from "@/app/components/transition/TransitionLink";
 import { useIntro } from "@/app/utils/context/IntroContext";
 
-export default function ListView() {
-    const reels = reelsData.slice(0, 8);
+interface ListViewProps {
+    reels: Reel[];
+}
+
+export default function ListView({ reels }: ListViewProps) {
     const { isComplete } = useIntro();
     const rowRefs = useRef<(HTMLAnchorElement | null)[]>([]);
     const previewRef = useRef<HTMLDivElement>(null);

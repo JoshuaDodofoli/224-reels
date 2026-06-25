@@ -1,7 +1,8 @@
 "use client";
 
-import { reelsData } from "@/app/utils/data";
+import { Reel } from "@/app/utils/data";
 import Image from "next/image";
+import MuxPlayer from "@mux/mux-player-react";
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -12,9 +13,12 @@ import { useIntro } from "@/app/utils/context/IntroContext";
 
 gsap.registerPlugin(useGSAP, Observer, SplitText);
 
-export default function SliderView() {
+interface SliderViewProps {
+    reels: Reel[];
+}
+
+export default function SliderView({ reels }: SliderViewProps) {
     const { isComplete } = useIntro();
-    const reels = reelsData.slice(0, 8);
     const N = reels.length;
 
     const [activeIndex, setActiveIndex] = useState(0);
@@ -245,13 +249,36 @@ export default function SliderView() {
                                     }}
                                     className="relative w-full h-full"
                                 >
-                                    <Image
-                                        src={reel.img}
-                                        alt={reel.desc}
-                                        fill
-                                        sizes="(max-width: 768px) 100vw, 50vw"
-                                        className="object-center object-cover"
-                                    />
+                                    {reel.video ? (
+                                        <MuxPlayer
+                                            playbackId={reel.video}
+                                            streamType="on-demand"
+                                            autoPlay
+                                            muted
+                                            playsInline
+                                            loop
+                                            paused={idx !== activeIndex}
+                                            className="absolute inset-0 w-full h-full"
+                                            style={{
+                                                // Hide all player chrome
+                                                ["--controls" as string]:
+                                                    "none",
+                                                // Make video fill + cover like next/image fill
+                                                ["--media-object-fit" as string]:
+                                                    "cover",
+                                                ["--media-object-position" as string]:
+                                                    "center",
+                                            }}
+                                        />
+                                    ) : (
+                                        <Image
+                                            src={reel.img}
+                                            alt={reel.desc}
+                                            fill
+                                            sizes="(max-width: 768px) 100vw, 50vw"
+                                            className="object-center object-cover"
+                                        />
+                                    )}
                                     <div className="absolute inset-0 flex items-center justify-center z-10">
                                         <div
                                             ref={(el) => {
@@ -284,7 +311,7 @@ export default function SliderView() {
                             ref={dateRef}
                             className="font-sans text-xs text-grey-400 inline-block"
                         >
-                            {reels[displayIndex].date}
+                            {reels[displayIndex]?.date}
                         </span>
                     </div>
                 </div>
