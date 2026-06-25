@@ -1,31 +1,31 @@
-'use client';
+"use client";
 
-import { Canvas, useFrame } from '@react-three/fiber';
-import { shaderMaterial } from '@react-three/drei';
-import * as THREE from 'three';
-import { extend } from '@react-three/fiber';
-import { useRef, useEffect } from 'react';
-import { useTransition, TransitionPhase } from './TransitionContext';
-import { useRouter, usePathname } from 'next/navigation';
-import gsap from 'gsap';
+import { Canvas, useFrame } from "@react-three/fiber";
+import { shaderMaterial } from "@react-three/drei";
+import * as THREE from "three";
+import { extend } from "@react-three/fiber";
+import { useRef, useEffect } from "react";
+import { useTransition, TransitionPhase } from "./TransitionContext";
+import { useRouter, usePathname } from "next/navigation";
+import gsap from "gsap";
 
 const normalizePath = (href: string) => {
-  try {
-    return new URL(href, window.location.origin).pathname;
-  } catch {
-    return href.split('#')[0].split('?')[0];
-  }
+    try {
+        return new URL(href, window.location.origin).pathname;
+    } catch {
+        return href.split("#")[0].split("?")[0];
+    }
 };
 
 const PAGE_READY_TIMEOUT_MS = 8000;
 
 const NoiseMaterial = shaderMaterial(
-  {
-    uProgress: 0,
-    uTime: 0,
-  },
-  // vertex shader
-  `
+    {
+        uProgress: 0,
+        uTime: 0,
+    },
+    // vertex shader
+    `
     varying vec2 vUv;
     void main() {
       vUv = uv;
@@ -33,8 +33,8 @@ const NoiseMaterial = shaderMaterial(
       gl_Position = vec4(position.xy, 0.0, 1.0);
     }
   `,
-  // fragment shader
-  `
+    // fragment shader
+    `
     uniform float uProgress;
     uniform float uTime;
     varying vec2 vUv;
@@ -73,14 +73,14 @@ const NoiseMaterial = shaderMaterial(
       // Noise calculation
       // Reduced frequency (from 5.0 to 1.5) makes the noise larger and less chaotic
       float rawNoise = snoise(vUv * 1.5 + uTime * 0.1);
-      
+
       // Map noise to 0.0 -> 1.0, but reduce its contrast/intensity by 50%
       // so it feels much softer and less harsh
       float noise = rawNoise * 0.18;
-      
+
       float p = uProgress;
       float alpha = 0.0;
-      
+
       // Calculate dissolve effect based on progress (0 to 1 for intro, 1 to 2 for outro)
       if (p <= 1.0) {
          // Animating in (covering screen)
@@ -93,163 +93,172 @@ const NoiseMaterial = shaderMaterial(
          float threshold = p2 * 1.6 - 0.3;
          alpha = smoothstep(threshold - 0.1, threshold + 0.1, noise);
       }
-      
+
       // Safety to ensure it's completely invisible when not active
       if (p == 0.0 || p == 2.0) {
          alpha = 0.0;
       }
-      
+
       // The transition color (grey-200: #F5F5F5)
-      vec3 color = vec3(0.96, 0.96, 0.96); 
-      
+      vec3 color = vec3(0.96, 0.96, 0.96);
+
       gl_FragColor = vec4(color, alpha);
     }
-  `
+  `,
 );
 
 extend({ NoiseMaterial });
 
 const Scene = ({
-  registerTrigger,
-  registerIntroExit,
-  setPhase,
+    registerTrigger,
+    registerIntroExit,
+    setPhase,
 }: {
-  registerTrigger: (fn: (href: string) => void) => void;
-  registerIntroExit: (fn: (onCovered?: () => void) => void) => void;
-  setPhase: (phase: TransitionPhase) => void;
+    registerTrigger: (fn: (href: string) => void) => void;
+    registerIntroExit: (fn: (onCovered?: () => void) => void) => void;
+    setPhase: (phase: TransitionPhase) => void;
 }) => {
-  const materialRef = useRef<any>(null);
-  const meshRef = useRef<any>(null);
-  const router = useRouter();
-  const pathname = usePathname();
-  const pathnameRef = useRef(pathname);
-  const pendingPathRef = useRef<string | null>(null);
-  const onPageReadyRef = useRef<(() => void) | null>(null);
+    const materialRef = useRef<any>(null);
+    const meshRef = useRef<any>(null);
+    const router = useRouter();
+    const pathname = usePathname();
+    const pathnameRef = useRef(pathname);
+    const pendingPathRef = useRef<string | null>(null);
+    const onPageReadyRef = useRef<(() => void) | null>(null);
 
-  // When the route commits, fire any pending "ready" callback
-  useEffect(() => {
-    pathnameRef.current = pathname;
-    if (pendingPathRef.current && pendingPathRef.current === pathname) {
-      pendingPathRef.current = null;
-      const cb = onPageReadyRef.current;
-      onPageReadyRef.current = null;
-      cb?.();
-    }
-  }, [pathname]);
+    // When the route commits, fire any pending "ready" callback
+    useEffect(() => {
+        pathnameRef.current = pathname;
+        if (pendingPathRef.current && pendingPathRef.current === pathname) {
+            pendingPathRef.current = null;
+            const cb = onPageReadyRef.current;
+            onPageReadyRef.current = null;
+            cb?.();
+        }
+    }, [pathname]);
 
-  useFrame((state) => {
-    if (materialRef.current) {
-      materialRef.current.uTime = state.clock.elapsedTime;
-    }
-  });
-
-  useEffect(() => {
-    registerIntroExit((onCovered?: () => void) => {
-      if (!materialRef.current || !meshRef.current) {
-        onCovered?.();
-        return;
-      }
-
-      // Start fully covered (matches grey-200 background of intro section)
-      meshRef.current.visible = true;
-      materialRef.current.uniforms.uProgress.value = 1.0;
-
-      // Let the intro section unmount now — canvas is already covering
-      onCovered?.();
-
-      // Dissolve away to reveal the site, same easing as the page transition outro
-      gsap.to(materialRef.current.uniforms.uProgress, {
-        value: 2.0,
-        duration: 3.0,
-        ease: 'power1.out',
-        onComplete: () => {
-          materialRef.current.uniforms.uProgress.value = 0.0;
-          meshRef.current.visible = false;
-        },
-      });
+    useFrame((state) => {
+        if (materialRef.current) {
+            materialRef.current.uTime = state.clock.elapsedTime;
+        }
     });
 
-    registerTrigger((href: string) => {
-      if (!materialRef.current || !meshRef.current) return;
+    useEffect(() => {
+        registerIntroExit((onCovered?: () => void) => {
+            if (!materialRef.current || !meshRef.current) {
+                onCovered?.();
+                return;
+            }
 
-      // Make mesh visible right before animation starts
-      meshRef.current.visible = true;
-      setPhase('covering');
+            // Start fully covered (matches grey-200 background of intro section)
+            meshRef.current.visible = true;
+            materialRef.current.uniforms.uProgress.value = 1.0;
 
-      // Cover phase (fill screen)
-      gsap.to(materialRef.current.uniforms.uProgress, {
-        value: 1.0,
-        duration: 2.0,
-        ease: 'power3.inOut',
-        onComplete: () => {
-          const startOutro = () => {
-            setPhase('revealing');
-            // Wait two frames so the newly committed route can paint before we dissolve
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                if (!materialRef.current || !meshRef.current) return;
-                gsap.to(materialRef.current.uniforms.uProgress, {
-                  value: 2.0,
-                  duration: 3.0,
-                  ease: 'power1.out',
-                  onComplete: () => {
+            // Let the intro section unmount now — canvas is already covering
+            onCovered?.();
+
+            // Dissolve away to reveal the site, same easing as the page transition outro
+            gsap.to(materialRef.current.uniforms.uProgress, {
+                value: 2.0,
+                duration: 1.2,
+                ease: "power2.out",
+                onComplete: () => {
                     materialRef.current.uniforms.uProgress.value = 0.0;
                     meshRef.current.visible = false;
-                    setPhase('idle');
-                  },
-                });
-              });
+                },
             });
-          };
+        });
 
-          const targetPath = normalizePath(href);
-          router.push(href);
+        registerTrigger((href: string) => {
+            if (!materialRef.current || !meshRef.current) return;
 
-          if (targetPath === pathnameRef.current) {
-            // Same route — nothing to wait for
-            startOutro();
-            return;
-          }
+            // Make mesh visible right before animation starts
+            meshRef.current.visible = true;
+            setPhase("covering");
 
-          // Hold the cover until the new route actually commits
-          setPhase('waiting');
-          pendingPathRef.current = targetPath;
-          onPageReadyRef.current = startOutro;
+            // Cover phase (fill screen)
+            gsap.to(materialRef.current.uniforms.uProgress, {
+                value: 1.0,
+                duration: 0.8,
+                ease: "power3.inOut",
+                onComplete: () => {
+                    const startOutro = () => {
+                        setPhase("revealing");
+                        // Wait two frames so the newly committed route can paint before we dissolve
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                if (!materialRef.current || !meshRef.current)
+                                    return;
+                                gsap.to(
+                                    materialRef.current.uniforms.uProgress,
+                                    {
+                                        value: 2.0,
+                                        duration: 1.2,
+                                        ease: "power2.out",
+                                        onComplete: () => {
+                                            materialRef.current.uniforms.uProgress.value = 0.0;
+                                            meshRef.current.visible = false;
+                                            setPhase("idle");
+                                        },
+                                    },
+                                );
+                            });
+                        });
+                    };
 
-          // Safety net — never wait forever
-          setTimeout(() => {
-            if (onPageReadyRef.current === startOutro) {
-              pendingPathRef.current = null;
-              onPageReadyRef.current = null;
-              startOutro();
-            }
-          }, PAGE_READY_TIMEOUT_MS);
-        },
-      });
-    });
-  }, [registerTrigger, registerIntroExit, router, setPhase]);
+                    const targetPath = normalizePath(href);
+                    router.push(href);
 
-  return (
-    <mesh ref={meshRef} frustumCulled={false} visible={false}>
-      <planeGeometry args={[2, 2]} />
-      {/* @ts-ignore */}
-      <noiseMaterial ref={materialRef} transparent depthWrite={false} depthTest={false} />
-    </mesh>
-  );
+                    if (targetPath === pathnameRef.current) {
+                        // Same route — nothing to wait for
+                        startOutro();
+                        return;
+                    }
+
+                    // Hold the cover until the new route actually commits
+                    setPhase("waiting");
+                    pendingPathRef.current = targetPath;
+                    onPageReadyRef.current = startOutro;
+
+                    // Safety net — never wait forever
+                    setTimeout(() => {
+                        if (onPageReadyRef.current === startOutro) {
+                            pendingPathRef.current = null;
+                            onPageReadyRef.current = null;
+                            startOutro();
+                        }
+                    }, PAGE_READY_TIMEOUT_MS);
+                },
+            });
+        });
+    }, [registerTrigger, registerIntroExit, router, setPhase]);
+
+    return (
+        <mesh ref={meshRef} frustumCulled={false} visible={false}>
+            <planeGeometry args={[2, 2]} />
+            {/* @ts-ignore */}
+            <noiseMaterial
+                ref={materialRef}
+                transparent
+                depthWrite={false}
+                depthTest={false}
+            />
+        </mesh>
+    );
 };
 
 export const TransitionCanvas = () => {
-  const { registerTrigger, registerIntroExit, setPhase } = useTransition();
+    const { registerTrigger, registerIntroExit, setPhase } = useTransition();
 
-  return (
-    <div className="fixed inset-0 z-50 pointer-events-none">
-      <Canvas style={{ pointerEvents: 'none' }}>
-        <Scene
-          registerTrigger={registerTrigger}
-          registerIntroExit={registerIntroExit}
-          setPhase={setPhase}
-        />
-      </Canvas>
-    </div>
-  );
+    return (
+        <div className="fixed inset-0 z-50 pointer-events-none">
+            <Canvas style={{ pointerEvents: "none" }}>
+                <Scene
+                    registerTrigger={registerTrigger}
+                    registerIntroExit={registerIntroExit}
+                    setPhase={setPhase}
+                />
+            </Canvas>
+        </div>
+    );
 };
