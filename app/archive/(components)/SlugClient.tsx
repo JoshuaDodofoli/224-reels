@@ -5,7 +5,15 @@ import MuxPlayer from "@mux/mux-player-react";
 import { TransitionLink } from "@/app/components/transition/TransitionLink";
 import { Reel } from "@/app/utils/data";
 import Wrapper from "@/app/components/Wrapper";
-import { useEffect, useRef } from "react";
+import {
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+    type ChangeEvent,
+    type ElementRef,
+    type PointerEvent,
+} from "react";
 import { useScrollToNext } from "@/app/utils/hooks/useScrollToNext";
 
 interface SlugProps {
@@ -13,10 +21,27 @@ interface SlugProps {
     reels: Reel[];
 }
 
-const mediaStyles = {
+const fullVideoStyles = {
     ["--controls" as string]: "none",
     ["--media-object-fit" as string]: "cover",
     ["--media-object-position" as string]: "center",
+};
+
+const previewVideoStyles = {
+    ["--controls" as string]: "none",
+    ["--media-object-fit" as string]: "cover",
+    ["--media-object-position" as string]: "center",
+};
+
+const formatTime = (seconds: number) => {
+    if (!Number.isFinite(seconds) || seconds <= 0) return "00:00";
+
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+
+    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
+        .toString()
+        .padStart(2, "0")}`;
 };
 
 const SlugClient = ({ reel, reels }: SlugProps) => {
@@ -24,9 +49,17 @@ const SlugClient = ({ reel, reels }: SlugProps) => {
     const safeCurrentIndex = currentIndex >= 0 ? currentIndex : 0;
     const nextReel = reels[(safeCurrentIndex + 1) % reels.length] ?? reel;
 
+    const playerRef = useRef<ElementRef<typeof MuxPlayer>>(null);
+    const playCursorRef = useRef<HTMLDivElement>(null);
     const leftBarRef = useRef<HTMLDivElement>(null);
     const rightBarRef = useRef<HTMLDivElement>(null);
     const mobileBarRef = useRef<HTMLDivElement>(null);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [isMuted, setIsMuted] = useState(false);
+    const [isCursorInVideo, setIsCursorInVideo] = useState(false);
+    const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
     useScrollToNext(`/archive/${nextReel.slug}`, {
         onProgress: (p) => {
@@ -41,22 +74,152 @@ const SlugClient = ({ reel, reels }: SlugProps) => {
         window.scrollTo(0, 0);
     }, [reel.slug]);
 
+    const syncTime = useCallback(() => {
+        const player = playerRef.current;
+        if (!player) return;
+
+        setCurrentTime(player.currentTime || 0);
+        setDuration(player.duration || 0);
+    }, []);
+
+    useEffect(() => {
+        if (!isPlaying) return;
+
+        let animationFrameId = 0;
+
+        const tick = () => {
+            syncTime();
+            animationFrameId = requestAnimationFrame(tick);
+        };
+
+        animationFrameId = requestAnimationFrame(tick);
+
+        return () => cancelAnimationFrame(animationFrameId);
+    }, [isPlaying, syncTime]);
+
+    const togglePlay = () => {
+        const player = playerRef.current;
+        if (!player) return;
+
+        if (player.paused) {
+            void player.play();
+        } else {
+            player.pause();
+        }
+    };
+
+    const toggleMute = () => {
+        const player = playerRef.current;
+        if (!player) return;
+
+        player.muted = !player.muted;
+        setIsMuted(player.muted);
+    };
+
+    const handleSeek = (event: ChangeEvent<HTMLInputElement>) => {
+        const player = playerRef.current;
+        const nextTime = Number(event.target.value);
+
+        setCurrentTime(nextTime);
+        if (player) player.currentTime = nextTime;
+    };
+
+    const movePlayCursor = (event: PointerEvent<HTMLElement>) => {
+        const label = playCursorRef.current;
+        if (!label) return;
+
+        const bounds = event.currentTarget.getBoundingClientRect();
+        const x = event.clientX - bounds.left;
+        const y = event.clientY - bounds.top;
+
+        label.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+    };
+
     return (
         <div className="bg-grey-700">
             <div className="relative z-10 min-h-screen bg-grey-200">
                 <Wrapper noPadding>
                     <div className="relative w-full h-screen">
                         {reel.video ? (
-                            <MuxPlayer
-                                playbackId={reel.video}
-                                streamType="on-demand"
-                                autoPlay
-                                muted
-                                playsInline
-                                loop
-                                className="absolute inset-0 w-full h-full"
-                                style={mediaStyles}
-                            />
+                            <>
+                                <MuxPlayer
+                                    key={reel.slug}
+                                    ref={playerRef}
+                                    playbackId={reel.video}
+                                    streamType="on-demand"
+                                    playsInline
+                                    className="absolute inset-0 w-full h-full bg-grey-700"
+                                    style={fullVideoStyles}
+                                    onLoadedMetadata={syncTime}
+                                    onDurationChange={syncTime}
+                                    onTimeUpdate={syncTime}
+                                    onPlay={() => setIsPlaying(true)}
+                                    onPause={() => setIsPlaying(false)}
+                                    onVolumeChange={() =>
+                                        setIsMuted(
+                                            Boolean(playerRef.current?.muted),
+                                        )
+                                    }
+                                />
+                                <button
+                                    type="button"
+                                    aria-label={
+                                        isPlaying ? "Pause video" : "Play video"
+                                    }
+                                    onClick={togglePlay}
+                                    onPointerEnter={(event) => {
+                                        setIsCursorInVideo(true);
+                                        movePlayCursor(event);
+                                    }}
+                                    onPointerMove={movePlayCursor}
+                                    onPointerLeave={() =>
+                                        setIsCursorInVideo(false)
+                                    }
+                                    className="absolute inset-0 z-10 cursor-none"
+                                />
+                                <div
+                                    ref={playCursorRef}
+                                    className={`pointer-events-none absolute left-0 top-0 z-20 font-sans text-sm lowercase text-grey-200 transition-opacity duration-200 ${
+                                        isCursorInVideo
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                    }`}
+                                    style={{
+                                        transform:
+                                            "translate3d(22vw, calc(100vh - 7rem), 0) translate(-50%, -50%)",
+                                    }}
+                                >
+                                    {isPlaying ? "pause" : "play"}
+                                </div>
+                                <div className="absolute inset-x-0 bottom-0 z-30 px-4 pb-6 md:px-6">
+                                    <div className="mb-4 flex items-center justify-between font-sans text-sm text-grey-200">
+                                        <span>
+                                            {formatTime(currentTime)} /{" "}
+                                            {formatTime(duration)}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={toggleMute}
+                                            className="transition-opacity duration-300 hover:opacity-60"
+                                        >
+                                            {isMuted ? "Unmute" : "Mute"}
+                                        </button>
+                                    </div>
+                                    <input
+                                        aria-label="Seek video"
+                                        type="range"
+                                        min={0}
+                                        max={duration || 0}
+                                        step="0.01"
+                                        value={duration ? currentTime : 0}
+                                        onChange={handleSeek}
+                                        className="minimal-video-range"
+                                        style={{
+                                            ["--progress" as string]: `${progress}%`,
+                                        }}
+                                    />
+                                </div>
+                            </>
                         ) : (
                             <Image
                                 src={reel.img}
@@ -66,8 +229,10 @@ const SlugClient = ({ reel, reels }: SlugProps) => {
                                 className="object-cover object-center"
                             />
                         )}
-                        {/* Back button */}
-                        <div className="absolute top-4 right-4 z-10">
+                        <div className="pointer-events-none absolute left-4 top-6 z-20 font-sans text-sm text-grey-200 md:left-6">
+                            {reel.title}
+                        </div>
+                        <div className="absolute top-4 right-4 z-20">
                             <TransitionLink
                                 href="/"
                                 className="group inline-flex items-center bg-grey-700 text-white px-2 h-6 overflow-hidden"
@@ -124,7 +289,7 @@ const SlugClient = ({ reel, reels }: SlugProps) => {
                                 playsInline
                                 loop
                                 className="absolute inset-0 w-full h-full transition-transform duration-700 ease-out group-hover:scale-105"
-                                style={mediaStyles}
+                                style={previewVideoStyles}
                             />
                         ) : (
                             <Image

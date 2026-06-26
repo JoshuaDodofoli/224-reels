@@ -8,7 +8,7 @@ interface childrenProps {
 
 const Wrapper = ({ children, className='', noPadding=false } : childrenProps) => {
   return (
-    <div className={classNames("max-w-380 mx-auto", { "px-4": !noPadding }, className)}>{children}</div>
+    <div className={classNames("max-w-390 mx-auto", { "px-4": !noPadding }, className)}>{children}</div>
   )
 }
 
