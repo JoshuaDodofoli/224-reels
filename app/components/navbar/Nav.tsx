@@ -43,7 +43,7 @@ const Nav = () => {
       <Wrapper className="w-full flex items-center justify-between">
         <div className=""></div>
         {
-          pathName !== '/about' && (
+          pathName === '/' && (
             <div className="absolute left-1/2 -translate-x-1/2">
               <ul className="flex items-center gap-3 text-sm px-2 py-1">
                 <li onClick={() => handleView('slider')} className="flex cursor-pointer items-center gap-2">
