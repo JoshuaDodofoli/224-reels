@@ -61,6 +61,12 @@ const SlugClient = ({ reel, reels }: SlugProps) => {
     const [isCursorInVideo, setIsCursorInVideo] = useState(false);
     const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
+    // Generate 4 thumbnail timestamps evenly spaced across the video
+    const thumbnails = duration > 0 && reel.video ? Array.from({ length: 4 }).map((_, i) => {
+        const segment = duration / 4;
+        return (i * segment + segment / 2).toFixed(2);
+    }) : [];
+
     useScrollToNext(`/archive/${nextReel.slug}`, {
         onProgress: (p) => {
             const t = `scaleX(${p})`;
@@ -268,6 +274,31 @@ const SlugClient = ({ reel, reels }: SlugProps) => {
                                 {reel.desc}
                             </p>
                         </div>
+
+                        {/* Gallery Section - Staggered Images */}
+                        {reel.video && thumbnails.length > 0 && (
+                            <div className="mt-32 flex flex-col gap-20 lg:gap-32 w-full">
+                                {thumbnails.map((time, idx) => {
+                                    const isEven = idx % 2 === 0;
+                                    return (
+                                        <div 
+                                            key={time} 
+                                            className={`relative aspect-video w-full md:w-[55%] overflow-hidden bg-grey-300 ${
+                                                isEven ? "self-start" : "self-end"
+                                            }`}
+                                        >
+                                            <Image
+                                                src={`https://image.mux.com/${reel.video}/thumbnail.webp?time=${time}`}
+                                                alt={`Thumbnail ${idx + 1}`}
+                                                fill
+                                                unoptimized
+                                                className="object-cover object-center"
+                                            />
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
                 </Wrapper>
             </div>
