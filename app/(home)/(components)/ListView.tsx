@@ -17,7 +17,12 @@ export default function ListView({ reels }: ListViewProps) {
     const rowRefs = useRef<(HTMLAnchorElement | null)[]>([]);
     const previewRef = useRef<HTMLDivElement>(null);
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-    const activeImage = hoveredIndex !== null ? reels[hoveredIndex].img : null;
+    const activeReel = hoveredIndex !== null ? reels[hoveredIndex] : null;
+    const activeImage = activeReel
+        ? activeReel.video
+            ? `https://image.mux.com/${activeReel.video}/thumbnail.webp?time=1`
+            : activeReel.img
+        : null;
 
     useGSAP(
         () => {
