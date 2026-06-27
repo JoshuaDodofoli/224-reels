@@ -16,6 +16,7 @@ import {
     type PointerEvent,
 } from "react";
 import { useScrollToNext } from "@/app/utils/hooks/useScrollToNext";
+import { useLenis } from 'lenis/react';
 
 interface SlugProps {
     reel: Reel;
@@ -46,6 +47,7 @@ const formatTime = (seconds: number) => {
 };
 
 const SlugClient = ({ reel, reels }: SlugProps) => {
+    const lenis = useLenis();
     const currentIndex = reels.findIndex((r) => r.slug === reel.slug);
     const safeCurrentIndex = currentIndex >= 0 ? currentIndex : 0;
     const nextReel = reels[(safeCurrentIndex + 1) % reels.length] ?? reel;
@@ -59,6 +61,13 @@ const SlugClient = ({ reel, reels }: SlugProps) => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
     const [isCursorInVideo, setIsCursorInVideo] = useState(false);
+
+    const placeholderRef = useRef<HTMLDivElement>(null);
+    const savedRectRef = useRef<DOMRect | null>(null);
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(false);
+    const [expandedStyles, setExpandedStyles] = useState<React.CSSProperties>({});
+
     const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
     // Generate 4 thumbnail timestamps evenly spaced across the video
@@ -103,15 +112,95 @@ const SlugClient = ({ reel, reels }: SlugProps) => {
         return () => cancelAnimationFrame(animationFrameId);
     }, [isPlaying, syncTime]);
 
+    const expandVideo = () => {
+        const placeholder = placeholderRef.current;
+        if (!placeholder) return;
+        
+        // Measure and SAVE the rect now — used again on collapse
+        const rect = placeholder.getBoundingClientRect();
+        savedRectRef.current = rect;
+        
+        setIsExpanded(true);
+        setIsAnimating(true);
+        lenis?.stop();
+        
+        // Initial state — snap to exact placeholder bounds (no transition)
+        setExpandedStyles({
+            position: 'fixed',
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height,
+            zIndex: 100,
+            transition: 'none',
+            margin: 0,
+            maxWidth: 'none'
+        });
+        
+        // After a tiny delay (to ensure the browser painted the initial fixed position),
+        // animate out to full viewport
+        setTimeout(() => {
+            setExpandedStyles({
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100vw',
+                height: '100vh',
+                zIndex: 100,
+                transition: 'all 0.7s cubic-bezier(0.76, 0, 0.24, 1)',
+                margin: 0,
+                maxWidth: 'none'
+            });
+            setTimeout(() => setIsAnimating(false), 700);
+        }, 50);
+    };
+
+    const collapseVideo = () => {
+        // Use the rect we saved at expand time — not a re-measure (which may differ if layout shifted)
+        const rect = savedRectRef.current;
+        if (!rect) return;
+        
+        setIsAnimating(true);
+        
+        // Animate the fixed container back to its original position
+        setExpandedStyles({
+            position: 'fixed',
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height,
+            zIndex: 100,
+            transition: 'all 0.7s cubic-bezier(0.76, 0, 0.24, 1)',
+            margin: 0,
+            maxWidth: 'none'
+        });
+        
+        setTimeout(() => {
+            setIsExpanded(false);
+            setIsAnimating(false);
+            setExpandedStyles({});
+            savedRectRef.current = null;
+            lenis?.start();
+        }, 700);
+    };
+
     const togglePlay = () => {
         const player = playerRef.current;
         if (!player) return;
 
         if (player.paused) {
+            if (!isExpanded && !isAnimating) expandVideo();
             void player.play();
         } else {
             player.pause();
         }
+    };
+
+    const handleCloseExpanded = (e?: React.MouseEvent) => {
+        if (e) e.stopPropagation();
+        const player = playerRef.current;
+        if (player) player.pause();
+        collapseVideo();
     };
 
     const toggleMute = () => {
@@ -149,7 +238,22 @@ const SlugClient = ({ reel, reels }: SlugProps) => {
                     </div>
 
                     {/* Video Section */}
-                    <div className="relative w-full max-w-lg mx-auto aspect-video bg-grey-700">
+                    <div ref={placeholderRef} className="relative w-full max-w-lg mx-auto aspect-video">
+                        <div 
+                            className="bg-grey-700 overflow-hidden"
+                            style={isExpanded ? expandedStyles : { position: 'absolute', inset: 0, width: '100%', height: '100%', transition: 'all 0.7s cubic-bezier(0.76, 0, 0.24, 1)' }}
+                        >
+                            {/* Close button for expanded view */}
+                            <div 
+                                className={`absolute top-0 right-0 z-[110] p-6 md:px-12 md:py-10 transition-opacity duration-500 ${isExpanded && !isAnimating ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                            >
+                                <button 
+                                    onClick={handleCloseExpanded}
+                                    className="font-sans text-sm md:text-base uppercase tracking-widest hover:opacity-60 transition-opacity text-white mix-blend-difference cursor-pointer"
+                                >
+                                    + Close
+                                </button>
+                            </div>
 
                         {/* Main Video logic */}
                         {reel.video ? (
@@ -172,16 +276,16 @@ const SlugClient = ({ reel, reels }: SlugProps) => {
                                 <div
                                     onPointerEnter={() => setIsCursorInVideo(true)}
                                     onPointerLeave={() => setIsCursorInVideo(false)}
-                                    className="absolute inset-0 z-10"
+                                    className="group absolute inset-0 z-10"
                                 >
-                                    {/* Invisible full overlay to catch hover events for fading out the button while playing */}
+                                    {/* Invisible full overlay to catch hover events */}
                                     <div className="absolute inset-0 cursor-pointer" onClick={togglePlay} />
                                     
-                                    <div className={`pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity duration-500 ${!isPlaying || isCursorInVideo ? 'opacity-100' : 'opacity-0'}`}>
+                                    <div className={`pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity duration-500 ${isExpanded ? 'opacity-0' : (!isPlaying || isCursorInVideo ? 'opacity-100' : 'opacity-0')}`}>
                                         <button
                                             type="button"
                                             onClick={togglePlay}
-                                            className="pointer-events-auto group relative flex items-center justify-center bg-grey-400/20 backdrop-blur-sm text-grey-200 rounded-full transition-all duration-300 ease-out hover:w-12 w-24 h-12 shadow-lg overflow-hidden"
+                                            className="pointer-events-auto relative flex items-center justify-center bg-grey-400/20 backdrop-blur-sm text-grey-200 rounded-full transition-all duration-300 ease-out group-hover:w-12 w-24 h-12 shadow-lg overflow-hidden"
                                         >
                                             <span className="flex items-center justify-center transition-all duration-300 ease-out translate-y-0 opacity-100 group-hover:-translate-y-8 group-hover:opacity-0 font-sans uppercase text-xs font-bold tracking-widest">
                                                 {isPlaying ? "Pause" : "Play"}
@@ -200,7 +304,7 @@ const SlugClient = ({ reel, reels }: SlugProps) => {
                                         </button>
                                     </div>
                                 </div>
-                                <div className="absolute inset-x-0 bottom-0 z-30 px-4 pb-6 md:px-6 opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                <div className={`absolute inset-x-0 bottom-0 z-30 px-4 pb-6 md:px-6 transition-opacity duration-300 ${isExpanded && !isAnimating ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                                     <div className="mb-4 flex items-center justify-between font-sans text-sm text-white drop-shadow-md">
                                         <span>{formatTime(currentTime)} / {formatTime(duration)}</span>
                                         <button type="button" onClick={toggleMute} className="transition-opacity duration-300 hover:opacity-60">{isMuted ? "Unmute" : "Mute"}</button>
@@ -221,6 +325,7 @@ const SlugClient = ({ reel, reels }: SlugProps) => {
                         ) : (
                             <Image src={reel.img} alt={reel.title} fill priority className="object-cover object-center" />
                         )}
+                        </div>
                     </div>
 
                     {/* Overview Section */}
