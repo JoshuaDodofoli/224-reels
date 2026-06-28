@@ -21,7 +21,7 @@ const AboutPage = () => {
       <Nav />
       <section
         ref={sectionRef}
-        className="w-full min-h-dvh flex items-center justify-center py-24"
+        className="w-full min-h-dvh flex items-center justify-center py-24 relative overflow-hidden"
       >
         <Wrapper>
           <div className="w-full max-w-md mx-auto flex flex-col items-center text-center gap-10 text-grey-500">

@@ -130,3 +130,18 @@ li {
     /*border-radius: 999px;*/
     background: var(--grey-200);
 }
+
+@keyframes marquee {
+    0% {
+        transform: translateX(0%);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.animate-marquee {
+    animation: marquee 30s linear infinite;
+    display: inline-block;
+    white-space: nowrap;
+}
