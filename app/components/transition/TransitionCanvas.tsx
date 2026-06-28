@@ -182,7 +182,7 @@ const Scene = ({
             // Cover phase (fill screen)
             gsap.to(materialRef.current.uniforms.uProgress, {
                 value: 1.0,
-                duration: 1.4,
+                duration: 2,
                 ease: "power3.inOut",
                 onComplete: () => {
                     const startOutro = () => {
@@ -196,7 +196,7 @@ const Scene = ({
                                     materialRef.current.uniforms.uProgress,
                                     {
                                         value: 2.0,
-                                        duration: 2.2,
+                                        duration: 3.2,
                                         ease: "power2.out",
                                         onComplete: () => {
                                             materialRef.current.uniforms.uProgress.value = 0.0;

@@ -36,6 +36,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+    metadataBase: new URL("https://224reels.com"),
     title: {
         default: "224 Reels",
         template: "%s — 224 Reels",

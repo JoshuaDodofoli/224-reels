@@ -64,6 +64,7 @@ const AboutPage = () => {
                   src="/about.gif"
                   alt="224 Reels — personal footage"
                   fill
+                  unoptimized
                   className="object-cover object-center"
                 />
               </div>

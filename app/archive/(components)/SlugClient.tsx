@@ -4,7 +4,6 @@ import Image from "next/image";
 import MuxPlayer from "@mux/mux-player-react";
 import { TransitionLink } from "@/app/components/transition/TransitionLink";
 import { Reel } from "@/app/utils/data";
-import Wrapper from "@/app/components/Wrapper";
 import Nav from "@/app/components/navbar/Nav";
 import {
     useCallback,
@@ -13,10 +12,10 @@ import {
     useState,
     type ChangeEvent,
     type ElementRef,
-    type PointerEvent,
+    type MouseEvent,
 } from "react";
 import { useScrollToNext } from "@/app/utils/hooks/useScrollToNext";
-import { useLenis } from 'lenis/react';
+import { useLenis } from "lenis/react";
 
 interface SlugProps {
     reel: Reel;
@@ -35,6 +34,30 @@ const previewVideoStyles = {
     ["--media-object-position" as string]: "center",
 };
 
+// freshman.tv easing: cubic-bezier(.49, .34, .01, 1)
+const EASE = "cubic-bezier(.49, .34, .01, 1)";
+const EXPAND_MS = 800;
+const COLLAPSE_MS = 900;
+const CONTROLS_DELAY_MS = 900; // delay before controls/title fade in after expand
+
+const waitForNextPaint = (callback: () => void) => {
+    requestAnimationFrame(() => {
+        requestAnimationFrame(callback);
+    });
+};
+
+type VideoRect = Pick<DOMRect, "top" | "left" | "width" | "height">;
+
+const getVideoRect = (element: HTMLElement): VideoRect => {
+    const rect = element.getBoundingClientRect();
+    return {
+        top: rect.top,
+        left: rect.left,
+        width: rect.width,
+        height: rect.height,
+    };
+};
+
 const formatTime = (seconds: number) => {
     if (!Number.isFinite(seconds) || seconds <= 0) return "00:00";
 
@@ -46,35 +69,47 @@ const formatTime = (seconds: number) => {
         .padStart(2, "0")}`;
 };
 
+// State machine for the animation phases
+// idle → expanding → expanded → collapsing → idle
+type Phase = "idle" | "expanding" | "expanded" | "collapsing";
+
 const SlugClient = ({ reel, reels }: SlugProps) => {
     const lenis = useLenis();
     const currentIndex = reels.findIndex((r) => r.slug === reel.slug);
     const safeCurrentIndex = currentIndex >= 0 ? currentIndex : 0;
     const nextReel = reels[(safeCurrentIndex + 1) % reels.length] ?? reel;
+    const posterSrc = reel.video
+        ? `https://image.mux.com/${reel.video}/thumbnail.webp`
+        : reel.img;
 
     const playerRef = useRef<ElementRef<typeof MuxPlayer>>(null);
+    const animationTimeoutRef = useRef<number | null>(null);
     const leftBarRef = useRef<HTMLDivElement>(null);
     const rightBarRef = useRef<HTMLDivElement>(null);
     const mobileBarRef = useRef<HTMLDivElement>(null);
+
+    // The ref on the placeholder (for measuring the thumbnail rect)
+    const placeholderRef = useRef<HTMLDivElement>(null);
+    // The ref on the video wrapper div that we animate
+    const wrapperRef = useRef<HTMLDivElement>(null);
+
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
     const [isCursorInVideo, setIsCursorInVideo] = useState(false);
 
-    const placeholderRef = useRef<HTMLDivElement>(null);
-    const savedRectRef = useRef<DOMRect | null>(null);
-    const [isExpanded, setIsExpanded] = useState(false);
-    const [isAnimating, setIsAnimating] = useState(false);
-    const [expandedStyles, setExpandedStyles] = useState<React.CSSProperties>({});
+    const savedRectRef = useRef<VideoRect | null>(null);
+    const [phase, setPhase] = useState<Phase>("idle");
+    // Controls/title visibility — fades in after expansion finishes
+    const [showControls, setShowControls] = useState(false);
+    // Whether the video image poster should be shown (during transition and when not playing)
+    const [showPoster, setShowPoster] = useState(true);
+
+    const isExpanded = phase === "expanded";
+    const isAnimating = phase === "expanding" || phase === "collapsing";
 
     const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
-
-    // Generate 4 thumbnail timestamps evenly spaced across the video
-    const thumbnails = duration > 0 && reel.video ? Array.from({ length: 4 }).map((_, i) => {
-        const segment = duration / 4;
-        return (i * segment + segment / 2).toFixed(2);
-    }) : [];
 
     useScrollToNext(`/archive/${nextReel.slug}`, {
         onProgress: (p) => {
@@ -88,6 +123,15 @@ const SlugClient = ({ reel, reels }: SlugProps) => {
     useEffect(() => {
         window.scrollTo(0, 0);
     }, [reel.slug]);
+
+    useEffect(() => {
+        return () => {
+            if (animationTimeoutRef.current) {
+                window.clearTimeout(animationTimeoutRef.current);
+            }
+            lenis?.start();
+        };
+    }, [lenis]);
 
     const syncTime = useCallback(() => {
         const player = playerRef.current;
@@ -112,94 +156,155 @@ const SlugClient = ({ reel, reels }: SlugProps) => {
         return () => cancelAnimationFrame(animationFrameId);
     }, [isPlaying, syncTime]);
 
-    const expandVideo = () => {
-        const placeholder = placeholderRef.current;
-        if (!placeholder) return;
-        
-        // Measure and SAVE the rect now — used again on collapse
-        const rect = placeholder.getBoundingClientRect();
-        savedRectRef.current = rect;
-        
-        setIsExpanded(true);
-        setIsAnimating(true);
-        lenis?.stop();
-        
-        // Initial state — snap to exact placeholder bounds (no transition)
-        setExpandedStyles({
-            position: 'fixed',
-            top: rect.top,
-            left: rect.left,
-            width: rect.width,
-            height: rect.height,
-            zIndex: 100,
-            transition: 'none',
-            margin: 0,
-            maxWidth: 'none'
-        });
-        
-        // After a tiny delay (to ensure the browser painted the initial fixed position),
-        // animate out to full viewport
-        setTimeout(() => {
-            setExpandedStyles({
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100vw',
-                height: '100vh',
-                zIndex: 100,
-                transition: 'all 0.7s cubic-bezier(0.76, 0, 0.24, 1)',
-                margin: 0,
-                maxWidth: 'none'
-            });
-            setTimeout(() => setIsAnimating(false), 700);
-        }, 50);
+    // Helper to determine target dimensions for expansion
+    const getExpandedTargetStyles = () => {
+        const isMobile = window.innerWidth < 768;
+        if (isMobile) {
+            return {
+                top: "calc(50dvh - (100vw * 9 / 16) / 2)",
+                left: "0",
+                width: "100vw",
+                height: "calc(100vw * 9 / 16)",
+            };
+        }
+        return {
+            top: "0",
+            left: "0",
+            width: "100vw",
+            height: "100dvh",
+        };
     };
 
+    // ─── Freshman.tv-style expand ──────────────────────────────────────────────
+    // Instead of swapping a poster clone, we animate the real wrapper div:
+    //   1. Measure the placeholder rect
+    //   2. Position the wrapper at that rect with no transition
+    //   3. On the next paint, apply the transition and move to target dimensions
+    //   4. After the animation, switch phase to "expanded"
+    const expandVideo = (playAfterExpand = false) => {
+        const placeholder = placeholderRef.current;
+        const wrapper = wrapperRef.current;
+        if (!placeholder || !wrapper || isAnimating || isExpanded) return;
+
+        const rect = getVideoRect(placeholder);
+        savedRectRef.current = rect;
+
+        if (animationTimeoutRef.current) {
+            window.clearTimeout(animationTimeoutRef.current);
+        }
+
+        lenis?.stop();
+        setPhase("expanding");
+        setShowControls(false);
+        setShowPoster(true);
+
+        // Snap wrapper to thumbnail rect (no transition)
+        wrapper.style.transition = "none";
+        wrapper.style.position = "fixed";
+        wrapper.style.top = `${rect.top}px`;
+        wrapper.style.left = `${rect.left}px`;
+        wrapper.style.width = `${rect.width}px`;
+        wrapper.style.height = `${rect.height}px`;
+        wrapper.style.zIndex = "110";
+        wrapper.style.margin = "0";
+        wrapper.style.maxWidth = "none";
+
+        waitForNextPaint(() => {
+            const target = getExpandedTargetStyles();
+            // Apply transition and animate to target dimensions
+            const transition = `top ${EXPAND_MS}ms ${EASE}, left ${EXPAND_MS}ms ${EASE}, width ${EXPAND_MS}ms ${EASE}, height ${EXPAND_MS}ms ${EASE}`;
+            wrapper.style.transition = transition;
+            wrapper.style.top = target.top;
+            wrapper.style.left = target.left;
+            wrapper.style.width = target.width;
+            wrapper.style.height = target.height;
+
+            animationTimeoutRef.current = window.setTimeout(() => {
+                // Animation complete — switch to expanded phase
+                setPhase("expanded");
+                animationTimeoutRef.current = null;
+
+                // Fade in controls after a short delay (freshman.tv does 1s delay)
+                animationTimeoutRef.current = window.setTimeout(() => {
+                    setShowControls(true);
+                    animationTimeoutRef.current = null;
+                }, CONTROLS_DELAY_MS - EXPAND_MS);
+
+                if (playAfterExpand) {
+                    void playerRef.current?.play();
+                    setShowPoster(false);
+                }
+            }, EXPAND_MS);
+        });
+    };
+
+    // ─── Freshman.tv-style collapse ────────────────────────────────────────────
+    // Animate the wrapper back from fullscreen → thumbnail rect, then reset
     const collapseVideo = () => {
-        // Use the rect we saved at expand time — not a re-measure (which may differ if layout shifted)
+        const wrapper = wrapperRef.current;
+        if (!wrapper || !isExpanded || isAnimating) return;
+
         const rect = savedRectRef.current;
         if (!rect) return;
-        
-        setIsAnimating(true);
-        
-        // Animate the fixed container back to its original position
-        setExpandedStyles({
-            position: 'fixed',
-            top: rect.top,
-            left: rect.left,
-            width: rect.width,
-            height: rect.height,
-            zIndex: 100,
-            transition: 'all 0.7s cubic-bezier(0.76, 0, 0.24, 1)',
-            margin: 0,
-            maxWidth: 'none'
+
+        if (animationTimeoutRef.current) {
+            window.clearTimeout(animationTimeoutRef.current);
+        }
+
+        playerRef.current?.pause();
+        setIsPlaying(false);
+        setIsCursorInVideo(false);
+        setShowControls(false);
+        setPhase("collapsing");
+        setShowPoster(true);
+
+        waitForNextPaint(() => {
+            const transition = `top ${COLLAPSE_MS}ms ${EASE}, left ${COLLAPSE_MS}ms ${EASE}, width ${COLLAPSE_MS}ms ${EASE}, height ${COLLAPSE_MS}ms ${EASE}`;
+            wrapper.style.transition = transition;
+            wrapper.style.top = `${rect.top}px`;
+            wrapper.style.left = `${rect.left}px`;
+            wrapper.style.width = `${rect.width}px`;
+            wrapper.style.height = `${rect.height}px`;
+
+            animationTimeoutRef.current = window.setTimeout(() => {
+                // Reset wrapper back to static styles
+                wrapper.style.transition = "none";
+                wrapper.style.position = "";
+                wrapper.style.top = "";
+                wrapper.style.left = "";
+                wrapper.style.width = "";
+                wrapper.style.height = "";
+                wrapper.style.zIndex = "";
+                wrapper.style.margin = "";
+                wrapper.style.maxWidth = "";
+
+                setPhase("idle");
+                savedRectRef.current = null;
+                animationTimeoutRef.current = null;
+                lenis?.start();
+            }, COLLAPSE_MS);
         });
-        
-        setTimeout(() => {
-            setIsExpanded(false);
-            setIsAnimating(false);
-            setExpandedStyles({});
-            savedRectRef.current = null;
-            lenis?.start();
-        }, 700);
     };
 
     const togglePlay = () => {
         const player = playerRef.current;
-        if (!player) return;
+        if (!player || isAnimating) return;
+
+        if (!isExpanded) {
+            expandVideo(true);
+            return;
+        }
 
         if (player.paused) {
-            if (!isExpanded && !isAnimating) expandVideo();
             void player.play();
+            setShowPoster(false);
         } else {
             player.pause();
         }
     };
 
-    const handleCloseExpanded = (e?: React.MouseEvent) => {
-        if (e) e.stopPropagation();
-        const player = playerRef.current;
-        if (player) player.pause();
+    const handleCloseExpanded = (e?: MouseEvent) => {
+        e?.stopPropagation();
         collapseVideo();
     };
 
@@ -219,7 +324,6 @@ const SlugClient = ({ reel, reels }: SlugProps) => {
         if (player) player.currentTime = nextTime;
     };
 
-
     return (
         <div>
             <div className="relative z-10 min-h-screen bg-grey-200  shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col">
@@ -233,98 +337,245 @@ const SlugClient = ({ reel, reels }: SlugProps) => {
                             {reel.title}
                         </h1>
                         <div className="mt-6 font-sans text-caption font-bold uppercase tracking-widest text-grey-450">
-                            {reel.type} <span className="opacity-50 mx-2">|</span> {reel.date}
+                            {reel.type}{" "}
+                            <span className="opacity-50 mx-2">|</span>{" "}
+                            {reel.date}
                         </div>
                     </div>
 
-                    {/* Video Section */}
-                    <div ref={placeholderRef} className="relative w-full max-w-lg mx-auto aspect-video">
-                        <div 
+                    {/* Video Section — placeholder keeps layout space */}
+                    <div
+                        ref={placeholderRef}
+                        className="relative w-full max-w-lg mx-auto aspect-video"
+                    >
+                        {/*
+                         * Dark overlay — fades in during expansion, out during collapse.
+                         * Placed OUTSIDE the wrapper so it covers the full viewport behind the video.
+                         */}
+                        <div
+                            style={{
+                                position: "fixed",
+                                inset: 0,
+                                zIndex: 100, // Background dimming layer (wrapper is 110)
+                                backgroundColor: "rgb(16,16,16)",
+                                opacity: isExpanded || phase === "expanding" ? 1 : 0,
+                                transition: phase === "expanding"
+                                    ? `opacity ${EXPAND_MS}ms ${EASE}`
+                                    : phase === "collapsing"
+                                    ? `opacity ${COLLAPSE_MS}ms ${EASE}`
+                                    : "none",
+                                pointerEvents: "none",
+                            }}
+                        />
+
+                        {/*
+                         * The wrapper is always mounted. During idle it sits absolutely
+                         * within the placeholder. During expand/collapse the JS above
+                         * applies fixed positioning via inline styles, animating it to
+                         * and from fullscreen — exactly as freshman.tv does it.
+                         */}
+                        <div
+                            ref={wrapperRef}
                             className="bg-grey-700 overflow-hidden"
-                            style={isExpanded ? expandedStyles : { position: 'absolute', inset: 0, width: '100%', height: '100%', transition: 'all 0.7s cubic-bezier(0.76, 0, 0.24, 1)' }}
+                            style={{
+                                // Default (idle) styles — JS overrides when animating
+                                position: "absolute",
+                                inset: 0,
+                                width: "100%",
+                                height: "100%",
+                            }}
                         >
-                            {/* Close button for expanded view */}
-                            <div 
-                                className={`absolute top-0 right-0 z-[110] p-6 md:px-12 md:py-10 transition-opacity duration-500 ${isExpanded && !isAnimating ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+
+                            {/* Title (top-left) — fades in with blur after expansion, like freshman.tv */}
+                            <div
+                                style={{
+                                    position: "absolute",
+                                    top: 0,
+                                    left: 0,
+                                    zIndex: 30,
+                                    padding: "1.5rem 1.5rem",
+                                    opacity: showControls ? 1 : 0,
+                                    filter: showControls ? "blur(0px)" : "blur(12px)",
+                                    transition: showControls
+                                        ? "opacity 1000ms ease, filter 1000ms ease"
+                                        : "opacity 300ms ease, filter 300ms ease",
+                                    pointerEvents: showControls ? "auto" : "none",
+                                }}
+                                className="md:px-12 md:py-10"
                             >
-                                <button 
+                                <span className="font-sans text-caption md:text-xs uppercase tracking-widest text-white/70">
+                                    {reel.title}
+                                </span>
+                            </div>
+
+                            {/* Close button (top-right) — fades in with blur after expansion */}
+                            <div
+                                style={{
+                                    position: "absolute",
+                                    top: 0,
+                                    right: 0,
+                                    zIndex: 30,
+                                    padding: "1.5rem 1.5rem",
+                                    opacity: showControls ? 1 : 0,
+                                    filter: showControls ? "blur(0px)" : "blur(12px)",
+                                    transition: showControls
+                                        ? "opacity 1000ms ease, filter 1000ms ease"
+                                        : "opacity 300ms ease, filter 300ms ease",
+                                    pointerEvents: showControls ? "auto" : "none",
+                                }}
+                                className="md:px-12 md:py-10"
+                            >
+                                <button
                                     onClick={handleCloseExpanded}
-                                    className="font-sans text-sm md:text-base uppercase tracking-widest hover:opacity-60 transition-opacity text-white mix-blend-difference cursor-pointer"
+                                    className="font-sans text-xs md:text-sm uppercase tracking-widest hover:opacity-60 transition-opacity text-white cursor-pointer"
                                 >
-                                    + Close
+                                    Close ×
                                 </button>
                             </div>
 
-                        {/* Main Video logic */}
-                        {reel.video ? (
-                            <>
-                                <MuxPlayer
-                                    key={reel.slug}
-                                    ref={playerRef}
-                                    playbackId={reel.video}
-                                    streamType="on-demand"
-                                    playsInline
-                                    className="absolute inset-0 w-full h-full bg-black"
-                                    style={fullVideoStyles}
-                                    onLoadedMetadata={syncTime}
-                                    onDurationChange={syncTime}
-                                    onTimeUpdate={syncTime}
-                                    onPlay={() => setIsPlaying(true)}
-                                    onPause={() => setIsPlaying(false)}
-                                    onVolumeChange={() => setIsMuted(Boolean(playerRef.current?.muted))}
-                                />
-                                <div
-                                    onPointerEnter={() => setIsCursorInVideo(true)}
-                                    onPointerLeave={() => setIsCursorInVideo(false)}
-                                    className="group absolute inset-0 z-10"
-                                >
-                                    {/* Invisible full overlay to catch hover events */}
-                                    <div className="absolute inset-0 cursor-pointer" onClick={togglePlay} />
-                                    
-                                    <div className={`pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity duration-500 ${isExpanded ? 'opacity-0' : (!isPlaying || isCursorInVideo ? 'opacity-100' : 'opacity-0')}`}>
-                                        <button
-                                            type="button"
-                                            onClick={togglePlay}
-                                            className="pointer-events-auto relative flex items-center justify-center bg-grey-400/20 backdrop-blur-sm text-grey-200 rounded-full transition-all duration-300 ease-out group-hover:w-12 w-24 h-12 shadow-lg overflow-hidden"
-                                        >
-                                            <span className="flex items-center justify-center transition-all duration-300 ease-out translate-y-0 opacity-100 group-hover:-translate-y-8 group-hover:opacity-0 font-sans uppercase text-xs font-bold tracking-widest">
-                                                {isPlaying ? "Pause" : "Play"}
-                                            </span>
-                                            <svg 
-                                                className={`absolute transition-all duration-300 ease-out translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 w-5 h-5 ${!isPlaying ? "ml-1" : ""}`}
-                                                viewBox="0 0 24 24" 
-                                                fill="currentColor"
-                                            >
-                                                {isPlaying ? (
-                                                    <path d="M6 4h4v16H6zm8 0h4v16h-4z" />
-                                                ) : (
-                                                    <path d="M8 5v14l11-7z" />
-                                                )}
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className={`absolute inset-x-0 bottom-0 z-30 px-4 pb-6 md:px-6 transition-opacity duration-300 ${isExpanded && !isAnimating ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                                    <div className="mb-4 flex items-center justify-between font-sans text-sm text-white drop-shadow-md">
-                                        <span>{formatTime(currentTime)} / {formatTime(duration)}</span>
-                                        <button type="button" onClick={toggleMute} className="transition-opacity duration-300 hover:opacity-60">{isMuted ? "Unmute" : "Mute"}</button>
-                                    </div>
-                                    <input
-                                        aria-label="Seek video"
-                                        type="range"
-                                        min={0}
-                                        max={duration || 0}
-                                        step="0.01"
-                                        value={duration ? currentTime : 0}
-                                        onChange={handleSeek}
-                                        className="minimal-video-range"
-                                        style={{ ["--progress" as string]: `${progress}%` }}
+                            {/* Main Video logic */}
+                            {reel.video ? (
+                                <>
+                                    <MuxPlayer
+                                        key={reel.slug}
+                                        ref={playerRef}
+                                        playbackId={reel.video}
+                                        streamType="on-demand"
+                                        playsInline
+                                        className="absolute inset-0 w-full h-full bg-grey-700"
+                                        style={{ ...fullVideoStyles, zIndex: 10 }}
+                                        onLoadedMetadata={syncTime}
+                                        onDurationChange={syncTime}
+                                        onTimeUpdate={syncTime}
+                                        onPlay={() => setIsPlaying(true)}
+                                        onPause={() => setIsPlaying(false)}
+                                        onVolumeChange={() =>
+                                            setIsMuted(
+                                                Boolean(
+                                                    playerRef.current?.muted,
+                                                ),
+                                            )
+                                        }
                                     />
-                                </div>
-                            </>
-                        ) : (
-                            <Image src={reel.img} alt={reel.title} fill priority className="object-cover object-center" />
-                        )}
+                                    <Image
+                                        src={posterSrc}
+                                        alt=""
+                                        fill
+                                        priority
+                                        sizes={
+                                            isExpanded
+                                                ? "100vw"
+                                                : "(max-width: 768px) 100vw, 512px"
+                                        }
+                                        style={{ zIndex: 11 }}
+                                        className={`absolute inset-0 object-cover transition-opacity duration-300 ${
+                                            showPoster
+                                                ? "opacity-100"
+                                                : "opacity-0 pointer-events-none"
+                                        }`}
+                                    />
+
+                                    {/* Interaction overlay */}
+                                    <div
+                                        onPointerEnter={() =>
+                                            setIsCursorInVideo(true)
+                                        }
+                                        onPointerLeave={() =>
+                                            setIsCursorInVideo(false)
+                                        }
+                                        className="group absolute inset-0"
+                                        style={{ zIndex: 20 }}
+                                    >
+                                        {/* Invisible click target */}
+                                        <div
+                                            className="absolute inset-0 cursor-pointer"
+                                            onClick={togglePlay}
+                                        />
+
+                                        {/* Play/Pause button — hidden when expanded */}
+                                        <div
+                                            className={`pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity duration-500 ${isExpanded ? "opacity-0" : !isPlaying || isCursorInVideo ? "opacity-100" : "opacity-0"}`}
+                                        >
+                                            <button
+                                                type="button"
+                                                onClick={togglePlay}
+                                                className="pointer-events-auto relative flex items-center justify-center bg-grey-400/20 backdrop-blur-sm text-grey-200 rounded-full transition-all duration-300 ease-out group-hover:w-12 w-24 h-12 shadow-lg overflow-hidden"
+                                            >
+                                                <span className="flex items-center justify-center transition-all duration-300 ease-out translate-y-0 opacity-100 group-hover:-translate-y-8 group-hover:opacity-0 font-sans uppercase text-xs font-bold tracking-widest">
+                                                    {isPlaying
+                                                        ? "Pause"
+                                                        : "Play"}
+                                                </span>
+                                                <svg
+                                                    className={`absolute transition-all duration-300 ease-out translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 w-5 h-5 ${!isPlaying ? "ml-1" : ""}`}
+                                                    viewBox="0 0 24 24"
+                                                    fill="currentColor"
+                                                >
+                                                    {isPlaying ? (
+                                                        <path d="M6 4h4v16H6zm8 0h4v16h-4z" />
+                                                    ) : (
+                                                        <path d="M8 5v14l11-7z" />
+                                                    )}
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Playback controls (bottom) — fade in with blur after expand */}
+                                    <div
+                                        style={{
+                                            position: "absolute",
+                                            left: 0,
+                                            right: 0,
+                                            bottom: 0,
+                                            zIndex: 30,
+                                            padding: "0 1rem 1.5rem",
+                                            opacity: showControls ? 1 : 0,
+                                            filter: showControls ? "blur(0px)" : "blur(12px)",
+                                            transition: showControls
+                                                ? "opacity 1000ms ease, filter 1000ms ease"
+                                                : "opacity 300ms ease, filter 300ms ease",
+                                            pointerEvents: showControls ? "auto" : "none",
+                                        }}
+                                        className="md:px-6"
+                                    >
+                                        <div className="mb-4 flex items-center justify-between font-sans text-xs md:text-sm text-white drop-shadow-md">
+                                            <span>
+                                                {formatTime(currentTime)} /{" "}
+                                                {formatTime(duration)}
+                                            </span>
+                                            <button
+                                                type="button"
+                                                onClick={toggleMute}
+                                                className="transition-opacity duration-300 hover:opacity-60"
+                                            >
+                                                {isMuted ? "Unmute" : "Mute"}
+                                            </button>
+                                        </div>
+                                        <input
+                                            aria-label="Seek video"
+                                            type="range"
+                                            min={0}
+                                            max={duration || 0}
+                                            step="0.01"
+                                            value={duration ? currentTime : 0}
+                                            onChange={handleSeek}
+                                            className="minimal-video-range"
+                                            style={{
+                                                ["--progress" as string]: `${progress}%`,
+                                            }}
+                                        />
+                                    </div>
+                                </>
+                            ) : (
+                                <Image
+                                    src={reel.img}
+                                    alt={reel.title}
+                                    fill
+                                    priority
+                                    className="object-cover object-center"
+                                />
+                            )}
                         </div>
                     </div>
 
@@ -337,7 +588,6 @@ const SlugClient = ({ reel, reels }: SlugProps) => {
                             {reel.desc}
                         </p>
                     </div>
-
                 </div>
             </div>
 
