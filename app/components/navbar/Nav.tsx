@@ -1,69 +1,78 @@
 'use client'
-import { useGSAP } from "@gsap/react";
 import Wrapper from "../Wrapper";
-import { navLinks } from "@/app/utils/data";
-import classNames from "classnames"; import gsap from "gsap";
-import Link from "next/link";
+import { useState, useRef } from "react";
+import Menu from "./Menu";
 import { usePathname } from "next/navigation";
-import { useRef } from "react";
+import { useView } from "@/app/utils/context/ViewContext";
+import { useIntro } from "@/app/utils/context/IntroContext";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
 
 const Nav = () => {
 
+  const { view, setView } = useView();
+  const { isComplete } = useIntro();
+  const navRef = useRef<HTMLElement>(null);
+  const [toggleMenu, setToggleMenu] = useState(false);
   const pathName = usePathname();
-  const linkRef = useRef(null);
-  const closeRef = useRef(null);
-  const isHomePage = pathName === '/' || pathName === '/works' || pathName === '/about';
 
   useGSAP(() => {
-    const target = isHomePage ? linkRef.current : closeRef.current;
-    if (!target) return;
+    if (!isComplete) {
+      gsap.set(navRef.current, { y: -30, opacity: 0 });
+      return;
+    }
+    gsap.to(navRef.current, {
+      y: 0,
+      opacity: 1,
+      duration: 0.8,
+      ease: "power3.out",
+      delay: 0.2
+    });
+  }, { scope: navRef, dependencies: [isComplete] });
 
-    gsap.fromTo(target,
-      { opacity: 0, y: 10 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.4,
-        ease: 'power3.out',
-      }
-    );
-  }, [isHomePage]);
+  const handleView = (v: 'slider' | 'list') => {
+    setView(v);
+  }
 
+  const handleMenu = () => {
+    setToggleMenu((prev) => !prev);
+  }
 
   return (
-    <nav className="py-4 fixed top-0 left-0 w-full z-50">
+    <nav ref={navRef} className="py-4 fixed top-0 left-0 w-full z-50">
       <Wrapper className="w-full flex items-center justify-between">
-        <div className="flex items-center justify-center bg-black text-background px-2 py-px text-body lg:text-lg font-sans rounded-sm">
-          <Link href='/'>
-            <span className="mr-1 md:mr-2">224</span>
-            <span className="">reels</span>
-          </Link>
-        </div>
-        <div>
-          {
-            isHomePage ? (
-              <ul ref={linkRef} className="flex items-center justify-center gap-1 md:gap-2">
-                {navLinks.map((link, idx) => {
-                  return (
-                    <div key={idx} className="flex items-center justify-center gap-2">
-                      <li className={classNames(pathName === link.path && 'underline ', "font-sans text-body lg:text-lg underline-offset-3 text-background hover:text-grey-400 duration-300")}>
-                        <Link href={link.path}>{link.title}</Link>
-                      </li>
-                      <span className="font-bold text-caption mr-1 text-background flex justify-center">
-                        {idx < navLinks.length - 1 && '|'}
-                      </span>
-                    </div>
-                  )
-                })}
+        <div className=""></div>
+        {
+          pathName === '/' && (
+            <div className="absolute left-1/2 -translate-x-1/2">
+              <ul className="flex items-center gap-3 text-sm px-2 py-1">
+                <li onClick={() => handleView('slider')} className="flex cursor-pointer items-center gap-2">
+                  <span className={`${view === 'slider' ? 'h-2 w-2' : 'w-0'} bg-grey-700 inline-block ease-in-out duration-300`} />
+                  <p>Slider</p>
+                </li>
+                |
+                <li onClick={() => handleView('list')} className="flex cursor-pointer items-center gap-2">
+                  <span className={`${view === 'list' ? 'h-2 w-2' : 'w-0'} bg-grey-700 inline-block ease-in-out duration-300`} />
+                  <p>List</p>
+                </li>
               </ul>
-            ) : (
-              <div ref={closeRef} className="">
-                <Link href='/works' className="bg-black px-2 py-1">
-                  <span className="">Close</span>
-                </Link>
-              </div>
-            )
-          }
+            </div>
+          )
+        }
+
+
+        <div className="relative">
+          <button onClick={handleMenu} className="cursor-pointer relative bg-grey-500 text-grey-200 px-2 z-20 h-6 overflow-hidden">
+            <div className={`flex flex-col transition-transform duration-500 ease-in-out ${toggleMenu ? '-translate-y-1/2' : 'translate-y-0'}`}>
+              <p className="text-sm h-6 flex items-center justify-center">Menu</p>
+              <p className="text-sm h-6 flex items-center justify-center">Close</p>
+            </div>
+          </button>
+
+          <Menu
+            handleMenu={handleMenu}
+            toggleMenu={toggleMenu}
+          />
         </div>
       </Wrapper>
     </nav>

@@ -1,15 +1,14 @@
-import { getMuxVideos } from "../action/getMuxVideos";
+import Nav from "../components/navbar/Nav";
 import HomeClient from "./(components)/HomeClient";
+import { getReels } from "../utils/getReels";
 
 export default async function Home() {
+    const reels = await getReels();
 
-  // const videos = await getMuxVideos();
-  // console.log(videos.data[2].duration);
-  
-
-  return (
-   <HomeClient 
-  //  videos={videos.data}
-    />
-  );
+    return (
+        <>
+            <Nav />
+            <HomeClient reels={reels} />
+        </>
+    );
 }

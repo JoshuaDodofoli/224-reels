@@ -1,40 +1,86 @@
-import Wrapper from "../components/Wrapper"
+'use client'
 
-const page = () => {
+import Image from 'next/image';
+import { useRef } from 'react';
+import Nav from '../components/navbar/Nav';
+import Wrapper from '../components/Wrapper';
+import { useAboutAnime } from '../utils/hooks/useAboutAnime';
+
+const AboutPage = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+  const labelRef = useRef<HTMLSpanElement>(null);
+  const paraRef = useRef<HTMLParagraphElement>(null);
+  const imageWrapRef = useRef<HTMLDivElement>(null);
+  const imageInnerRef = useRef<HTMLDivElement>(null);
+  const captionRef = useRef<HTMLParagraphElement>(null);
+
+  useAboutAnime({ sectionRef, labelRef, paraRef, imageWrapRef, imageInnerRef, captionRef });
+
   return (
-    <section className='pt-32 font-sans'>
-      <Wrapper>
-        <div className="w-full pt-8">
-          <div className="bg-red-500 aspect-square my-10" />
-          <p className="text-h3 md:text-h2 lg:text-7xl font-medium leading-[1.1] text-center max-w-7xl w-full mx-auto">224 Reels is a personal archive of moving images and "experiments" that I make in my free time.</p>
-          <p className="text-body md:text-h3 w-full max-w-3xl text-center mx-auto">This space exists to document and showcase my "shots" —  composition, and the feeling that lives between frames. Some of these "shots" are polished. Others are just fragments, tests, or ideas in motion.</p>
+    <>
+      <Nav />
+      <section
+        ref={sectionRef}
+        className="w-full min-h-dvh flex items-center justify-center py-24 relative overflow-hidden"
+      >
+        <Wrapper>
+          <div className="w-full max-w-md mx-auto flex flex-col items-center text-center gap-10 text-grey-500">
 
-          <div className="pt-20 md:pt-32 space-y-12">
-            <p className="text-h3 md:text-h2 lg:text-7xl font-medium leading-[1.1] text-center max-w-7xl w-full mx-auto">This archive grows alongside the work — a record of process, iteration, and evolving perspective.</p>
-            <p className="text-body md:text-h3 w-full max-w-3xl text-center mx-auto">This space exists to document and showcase my "shots" —  composition, and the feeling that lives between frames. Some of these "shots" are polished. Others are just fragments, tests, or ideas in motion.</p>
+            {/* Label */}
+            {/* <span
+              ref={labelRef}
+              className="font-mono text-xs text-grey-400 uppercase tracking-widest opacity-0"
+            >
+              224 Reels — Personal Archive
+            </span> */}
+
+            {/* Paragraph */}
+            <div>
+              <p
+                ref={paraRef}
+                className="text-body text-grey-450 font-sans leading-relaxed"
+              >
+                224 Reels is a personal archive of moving images and experiments
+                created in my free time. This space exists to document and
+                showcase moments, places, and the people closest to me. These shots aren't polished. Ultimately, this archive grows
+                alongside the work and the life that inspires it.
+              </p>
+            </div>
+
+            {/* Image — outer clip-path mask + inner scale */}
+            <div
+              ref={imageWrapRef}
+              className="relative w-full aspect-video"
+              style={{ clipPath: 'inset(100% 0% 0% 0%)' }}
+            >
+              <div
+                ref={imageInnerRef}
+                className="relative w-full h-full"
+                style={{ scale: '1.15' }}
+              >
+                <Image
+                  src="/about.gif"
+                  alt="224 Reels — personal footage"
+                  fill
+                  unoptimized
+                  className="object-cover object-center"
+                />
+              </div>
+            </div>
+
+            {/* Caption */}
+            <p
+              ref={captionRef}
+              className="text-sm font-medium text-grey-400 font-mono opacity-0"
+            >
+              All captured on iPhone XR.
+            </p>
 
           </div>
-        </div>
+        </Wrapper>
+      </section>
+    </>
+  );
+};
 
-      </Wrapper>
-    </section>
-    // <section className='pt-32 font-sans'>
-    //   <Wrapper>
-    //     <div className="w-full pt-8">
-    //       <p className="text-h3 md:text-h2 lg:text-7xl font-medium leading-[1.1] text-center max-w-7xl w-full mx-auto">224 Reels is a personal archive of moving images and "experiments" that I make in my free time.</p>
-    //       <div className="bg-red-500 aspect-square my-10" />
-    //       <p className="text-body md:text-h3 w-full max-w-3xl text-center mx-auto">This space exists to document and showcase my "shots" —  composition, and the feeling that lives between frames. Some of these "shots" are polished. Others are just fragments, tests, or ideas in motion.</p>
-
-    //       <div className="pt-20 md:pt-32 space-y-12">
-    //         <p className="text-h3 md:text-h2 lg:text-7xl font-medium leading-[1.1] text-center max-w-7xl w-full mx-auto">This archive grows alongside the work — a record of process, iteration, and evolving perspective.</p>
-    //         <p className="text-body md:text-h3 w-full max-w-3xl text-center mx-auto">This space exists to document and showcase my "shots" —  composition, and the feeling that lives between frames. Some of these "shots" are polished. Others are just fragments, tests, or ideas in motion.</p>
-
-    //       </div>
-    //     </div>
-
-    //   </Wrapper>
-    // </section>
-  )
-}
-
-export default page
+export default AboutPage;
