@@ -35,10 +35,12 @@ export const useSliderAnimation = (N: number, isComplete: boolean) => {
 
             const allTexts = textRefs.current.filter(Boolean);
             const split = new SplitText(allTexts, {
-                type: "chars",
+                type: "words, chars",
+                wordsClass: "word",
                 charsClass: "char",
             });
-            gsap.set(split.chars, { yPercent: 100 });
+            gsap.set(split.words, { overflow: "hidden", verticalAlign: "top" });
+            gsap.set(split.chars, { yPercent: 105 });
 
             const firstOuter = outerRefs.current[0];
             const firstInner = innerRefs.current[0];
@@ -95,7 +97,7 @@ export const useSliderAnimation = (N: number, isComplete: boolean) => {
                 gsap.set(nextInner, { scale: 1.1 });
                 if (nextChars?.length) {
                     gsap.set(nextChars, {
-                        yPercent: direction > 0 ? 100 : -100,
+                        yPercent: direction > 0 ? 105 : -105,
                     });
                 }
 
@@ -112,7 +114,7 @@ export const useSliderAnimation = (N: number, isComplete: boolean) => {
 
                 if (prevChars?.length) {
                     tl.to(prevChars, {
-                        yPercent: direction > 0 ? -100 : 100,
+                        yPercent: direction > 0 ? -105 : 105,
                         duration: 0.35,
                         ease: "power2.in",
                         stagger: 0.008,

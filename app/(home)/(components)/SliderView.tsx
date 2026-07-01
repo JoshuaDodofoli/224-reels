@@ -74,12 +74,12 @@ export default function SliderView({ reels }: SliderViewProps) {
                                             className="object-center object-cover"
                                         />
                                     )}
-                                    <div className="absolute inset-0 flex items-center justify-center z-10">
+                                    <div className="absolute inset-0 flex items-center justify-center z-10 px-4">
                                         <div
                                             ref={(el) => {
                                                 textRefs.current[idx] = el;
                                             }}
-                                            className="reel-text text-h3 md:text-h2 font-semibold uppercase font-sans text-grey-200 text-center overflow-hidden"
+                                            className="reel-text text-h3 leading-tight md:text-h2 font-semibold uppercase font-sans text-grey-200 text-center overflow-hidden max-w-[70%] md:max-w-[50%]"
                                         >
                                             {reel.title}
                                         </div>

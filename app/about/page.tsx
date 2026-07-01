@@ -42,9 +42,7 @@ const AboutPage = () => {
               >
                 224 Reels is a personal archive of moving images and experiments
                 created in my free time. This space exists to document and
-                showcase moments, places, and the people closest to me. Some of
-                these shots are polished films; others are simply fragments,
-                creative tests, or ideas in motion. Ultimately, this archive grows
+                showcase moments, places, and the people closest to me. These shots aren't polished. Ultimately, this archive grows
                 alongside the work and the life that inspires it.
               </p>
             </div>

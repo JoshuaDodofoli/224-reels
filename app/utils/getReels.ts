@@ -79,7 +79,7 @@ export async function getReels(): Promise<Reel[]> {
     try {
         const result = await wixCient.items
             .query("reels")
-            // .descending("date")
+            .ascending("order") // Matches a Number column named 'order' in Wix CMS. (Note: system fields use underscores like '_createdDate')
             .find();
 
         const reels = result.items
