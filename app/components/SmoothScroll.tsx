@@ -1,6 +1,6 @@
 "use client";
 import gsap from "gsap";
-import { ReactLenis } from "lenis/react";
+import { ReactLenis, type LenisRef } from "lenis/react";
 import { useEffect, useRef } from "react";
 
 interface Props {
@@ -8,9 +8,7 @@ interface Props {
 }
 
 function SmoothScroll({ children }: Props) {
-    const lenisRef = useRef<{ lenis?: { raf: (time: number) => void } } | null>(
-        null,
-    );
+    const lenisRef = useRef<LenisRef | null>(null);
 
     useEffect(() => {
         function update(time: number) {
