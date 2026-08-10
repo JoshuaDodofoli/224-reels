@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter, Inconsolata, Oswald } from "next/font/google";
 import "./globals.css";
 import localFont from "next/font/local";
 import SmoothScroll from "./components/SmoothScroll";
@@ -19,21 +18,6 @@ const montreal = localFont({
 const clashGrotesk = localFont({
     src: "../app/fonts/ClashGrotesk-Variable.woff2",
     variable: "--clash-grotesk",
-});
-
-const inconsolata = Inconsolata({
-    variable: "--font-inconsolata",
-    subsets: ["latin"],
-});
-
-const oswald = Oswald({
-    variable: "--font-oswald",
-    subsets: ["latin"],
-});
-
-const inter = Inter({
-    variable: "--font-inter",
-    subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -60,7 +44,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body
-                className={`${inconsolata.variable} ${inter.variable} ${montreal.variable} ${clashGrotesk.variable} ${oswald.variable} antialiased`}
+                className={`${montreal.variable} ${clashGrotesk.variable} antialiased`}
             >
                 <ViewProvider>
                     <TransitionProvider>
