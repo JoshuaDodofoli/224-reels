@@ -25,11 +25,9 @@
     --color-grey-700: var(--grey-700);
     /* --color-foreground: var(--foreground); */
     /* --font-sans: var(--font-geist-sans); */
-    --font-mono: var(--font-inconsolata);
-    /* --font-sans: var(--font-inter); */
-    /* --font-sans: var(--clash-grotesk); */
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     --font-sans: var(--montreal);
-    --font-title: var(--font-oswald);
+    --font-title: var(--clash-grotesk);
 
     --text-h1: 3.8rem;
     --text-h2: 2.625rem;
