@@ -9,6 +9,12 @@ import { TransitionProvider } from "./components/transition/TransitionContext";
 import { ClientTransitionCanvas } from "./components/transition/ClientTransitionCanvas";
 import { TransitionLoader } from "./components/transition/TransitionLoader";
 import Noise from "./components/Noise";
+import {
+    SITE_DESCRIPTION,
+    SITE_NAME,
+    SITE_URL,
+    SOCIAL_IMAGE_PATH,
+} from "./utils/site";
 
 const montreal = localFont({
     src: "../app/fonts/NeueMontreal.woff2",
@@ -21,16 +27,32 @@ const clashGrotesk = localFont({
 });
 
 export const metadata: Metadata = {
-    metadataBase: new URL("https://224-reels.vercel.app/"),
+    metadataBase: new URL(SITE_URL),
     title: {
-        default: "224 Reels",
-        template: "%s — 224 Reels",
+        default: SITE_NAME,
+        template: `%s — ${SITE_NAME}`,
     },
-    description:
-        "A personal archive of moving images and experiments — moments, places, and the people closest to me.",
+    description: SITE_DESCRIPTION,
     openGraph: {
-        siteName: "224 Reels",
+        title: SITE_NAME,
+        description: SITE_DESCRIPTION,
+        url: "/",
+        siteName: SITE_NAME,
         type: "website",
+        images: [
+            {
+                url: SOCIAL_IMAGE_PATH,
+                width: 1200,
+                height: 630,
+                alt: SITE_NAME,
+            },
+        ],
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: SITE_NAME,
+        description: SITE_DESCRIPTION,
+        images: [SOCIAL_IMAGE_PATH],
     },
 };
 

@@ -2,6 +2,7 @@ import { getReelBySlug, getReels } from "@/app/utils/getReels";
 import { notFound } from "next/navigation";
 import { type Metadata } from "next";
 import SlugClient from "../(components)/SlugClient";
+import { SITE_NAME } from "@/app/utils/site";
 
 interface SlugPageProps {
     params: Promise<{ slug: string }>;
@@ -25,10 +26,22 @@ export async function generateMetadata({
     return {
         title: reel.title,
         description: reel.desc,
+        alternates: {
+            canonical: `/archive/${reel.slug}`,
+        },
         openGraph: {
             title: reel.title,
             description: reel.desc,
+            url: `/archive/${reel.slug}`,
+            siteName: SITE_NAME,
+            type: "video.other",
             images: reel.img ? [{ url: reel.img }] : [],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: `${reel.title} — ${SITE_NAME}`,
+            description: reel.desc,
+            images: reel.img ? [reel.img] : [],
         },
     };
 }
