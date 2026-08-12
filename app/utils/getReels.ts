@@ -1,5 +1,6 @@
 import { wixCient } from "./wixClient";
 import { reelsData, Reel } from "./data";
+import { unstable_cache } from "next/cache";
 
 export const createTitleSlug = (title: string) =>
     title
@@ -71,11 +72,10 @@ function mapItemToReel(item: Record<string, unknown>, index = 0): Reel {
 
 /**
  * Fetch all reels from Wix CMS, sorted by date descending.
- * Safe to call from any Server Component or API route.
- * Results are not cached — wrap with Next.js `cache()` or use
- * `fetch` revalidation if you want ISR behaviour.
+ * Fetches and normalizes the reel collection from Wix.
+ * Keep this private so every consumer uses the same cached snapshot.
  */
-export async function getReels(): Promise<Reel[]> {
+async function fetchReels(): Promise<Reel[]> {
     try {
         const result = await wixCient.items
             .query("reels")
@@ -104,6 +104,17 @@ export async function getReels(): Promise<Reel[]> {
         return mockReels;
     }
 }
+
+/**
+ * Share one deterministic reel snapshot across generateStaticParams,
+ * generateMetadata, and page rendering. Without this data cache, those build
+ * phases can see different Wix/fallback results and incorrectly render known
+ * reel routes as not found (which makes Next.js emit a noindex directive).
+ */
+export const getReels = unstable_cache(fetchReels, ["reels"], {
+    revalidate: 3600,
+    tags: ["reels"],
+});
 
 /**
  * Fetch a single reel by slug.
